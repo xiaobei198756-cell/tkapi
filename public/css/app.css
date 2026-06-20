@@ -74,22 +74,22 @@ body {
 }
 
 .site-page {
-  background: #f8fafc;
-  color: #111827;
+  background: #eef3ef;
+  color: #17211c;
   min-height: 100vh;
 }
 
 .site-header {
   align-items: center;
   background: #fff;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid #dce4dd;
   display: flex;
   justify-content: space-between;
   padding: 18px clamp(20px, 5vw, 64px);
 }
 
 .site-logo {
-  color: #111827;
+  color: #17211c;
   font-size: 22px;
   font-weight: 800;
   text-decoration: none;
@@ -101,15 +101,23 @@ body {
 }
 
 .site-nav a {
-  color: #4b5563;
+  color: #536159;
   font-weight: 600;
   text-decoration: none;
 }
 
+.site-nav a:hover {
+  color: #1d6b50;
+}
+
 .site-hero {
   align-items: center;
+  background: linear-gradient(135deg, #ffffff 0%, #edf7f2 100%);
+  border: 1px solid #dce4dd;
+  border-radius: 8px;
   display: flex;
-  min-height: 56vh;
+  margin: 28px clamp(20px, 5vw, 64px) 0;
+  min-height: 48vh;
   padding: 64px clamp(20px, 5vw, 64px) 48px;
 }
 
@@ -118,7 +126,7 @@ body {
 }
 
 .site-kicker {
-  color: #2563eb;
+  color: #1d6b50;
   font-size: 13px;
   font-weight: 800;
   letter-spacing: 0.08em;
@@ -129,12 +137,12 @@ body {
 .site-hero h1 {
   font-size: clamp(40px, 7vw, 72px);
   font-weight: 800;
-  line-height: 1;
+  line-height: 1.05;
   margin-bottom: 22px;
 }
 
 .site-summary {
-  color: #4b5563;
+  color: #536159;
   font-size: 20px;
   line-height: 1.6;
   max-width: 680px;
@@ -148,20 +156,59 @@ body {
 }
 
 .site-section {
-  padding: 0 clamp(20px, 5vw, 64px) 64px;
+  padding: 28px clamp(20px, 5vw, 64px) 64px;
+}
+
+.site-section-top {
+  padding-top: 48px;
+}
+
+.page-heading {
+  margin-bottom: 22px;
+  max-width: 860px;
+}
+
+.page-heading h1 {
+  font-size: clamp(32px, 5vw, 54px);
+  font-weight: 800;
+  margin-bottom: 12px;
+}
+
+.page-heading p {
+  color: #536159;
+  font-size: 18px;
+}
+
+.tool-card {
+  background: #fff;
+  border: 1px solid #dce4dd;
+  border-radius: 8px;
+  box-shadow: 0 8px 22px rgba(23, 33, 28, 0.05);
+  padding: 22px;
 }
 
 .feature-grid {
   display: grid;
   gap: 16px;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
 }
 
 .feature-card {
   background: #fff;
-  border: 1px solid #e5e7eb;
+  border: 1px solid #dce4dd;
   border-radius: 8px;
+  color: #17211c;
   padding: 24px;
+}
+
+.feature-link {
+  display: block;
+  min-height: 150px;
+  text-decoration: none;
+}
+
+.feature-link:hover {
+  border-color: #1d6b50;
 }
 
 .feature-card h2 {
@@ -170,8 +217,66 @@ body {
 }
 
 .feature-card p {
-  color: #4b5563;
+  color: #536159;
   margin-bottom: 0;
+}
+
+.keyword-form {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.keyword-form button {
+  align-self: end;
+}
+
+.keyword-form span,
+.field-label {
+  color: #3d4a42;
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 7px;
+}
+
+.platform-options {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+}
+
+.platform-options label {
+  align-items: center;
+  background: #fbfcfb;
+  border: 1px solid #dce4dd;
+  border-radius: 6px;
+  display: flex;
+  gap: 8px;
+  min-height: 40px;
+  padding: 8px 10px;
+}
+
+.search-message {
+  color: #536159;
+  margin-top: 14px;
+}
+
+.status-row {
+  align-items: center;
+  border-bottom: 1px solid #e8eee9;
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 12px 0;
+}
+
+.status-row span {
+  color: #536159;
+}
+
+.status-row strong {
+  text-align: right;
 }
 
 @media (max-width: 760px) {
@@ -187,6 +292,7 @@ body {
 
   .site-hero {
     min-height: auto;
+    margin: 18px;
     padding-top: 48px;
   }
 
