@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TikTok API 设置 | TKAPI</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="/css/app.css" rel="stylesheet">
+</head>
+<body class="site-page">
+  <header class="site-header">
+    <a class="site-logo" href="/">TKAPI</a>
+    <nav class="site-nav" aria-label="TKAPI navigation">
+      <a href="/features">功能介绍</a>
+      <a href="/keywords">关键词搜索</a>
+      <a href="/settings/tiktok">TikTok API</a>
+      <a href="/terms">Terms</a>
+      <a href="/privacy">Privacy</a>
+    </nav>
+  </header>
+
+  <main class="site-section site-section-top">
+    <div class="page-heading">
+      <p class="site-kicker">TikTok API</p>
+      <h1>TikTok API 设置</h1>
+      <p>通过 TikTok 官方 OAuth 授权连接账号。页面只显示授权状态，不显示 access_token 或 refresh_token。</p>
+    </div>
+
+    <section class="tool-card">
+      <div class="status-row">
+        <span>授权状态</span>
+        <strong id="statusText">检查中...</strong>
+      </div>
+      <div class="status-row">
+        <span>open_id</span>
+        <strong id="openId">-</strong>
+      </div>
+      <div class="status-row">
+        <span>scope</span>
+        <strong id="scopeText">-</strong>
+      </div>
+      <div class="site-actions">
+        <button class="btn btn-success btn-lg" id="connectButton" type="button">连接 TikTok 账号</button>
+      </div>
+      <p class="text-muted mt-3 mb-0">
+        Redirect URI 应在 TikTok Developer 后台配置为固定 HTTPS 地址，例如 https://tkapi.onrender.com/api/tiktok/callback。
+      </p>
+    </section>
+  </main>
+
+  <script>
+    const statusText = document.getElementById('statusText');
+    const openId = document.getElementById('openId');
+    const scopeText = document.getElementById('scopeText');
+    const connectButton = document.getElementById('connectButton');
+
+    async function loadStatus() {
+      try {
+        const response = await fetch('/api/tiktok/status');
+        const json = await response.json();
+        statusText.textContent = json.connected ? 'TikTok 已连接' : '未连接';
+        openId.textContent = json.open_id || '-';
+        scopeText.textContent = json.scope || '-';
+      } catch (error) {
+        statusText.textContent = '无法连接后端接口';
+      }
+    }
+
+    connectButton.addEventListener('click', async () => {
+      connectButton.disabled = true;
+      connectButton.textContent = '正在打开授权页面...';
+      try {
+        const response = await fetch('/api/tiktok/auth-url');
+        const json = await response.json();
+        if (!response.ok) throw new Error(json.message || '无法生成 TikTok 授权链接');
+        window.location.href = json.auth_url;
+      } catch (error) {
+        alert(error.message || 'TikTok 授权失败');
+        connectButton.disabled = false;
+        connectButton.textContent = '连接 TikTok 账号';
+      }
+    });
+
+    loadStatus();
+  </script>
+</body>
+</html>
