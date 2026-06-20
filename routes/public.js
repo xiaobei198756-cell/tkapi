@@ -1,4 +1,5 @@
 const express = require('express');
+const crypto = require('crypto');
 const { all, get, run } = require('../config/db');
 const { getCountryCode } = require('../config/geoip');
 const { hashValue, normalizeLeadInput } = require('../config/security');
@@ -56,6 +57,90 @@ router.get('/terms', (req, res) => {
 
 router.get('/privacy', (req, res) => {
   res.render('public/legal', legalPages.privacy);
+});
+
+router.get('/features', (req, res) => {
+  res.render('public/features');
+});
+
+router.get(['/keywords', '/dashboard'], (req, res) => {
+  res.render('public/keywords');
+});
+
+router.get('/settings/tiktok', (req, res) => {
+  res.render('public/tiktok-settings');
+});
+
+router.get('/api/tiktok/status', (req, res) => {
+  res.json({
+    connected: false,
+    open_id: null,
+    scope: process.env.TIKTOK_SCOPES || 'user.info.basic,video.list',
+    message: 'TikTok OAuth token storage is not connected in this Express deployment yet.'
+  });
+});
+
+router.get('/api/tiktok/auth-url', (req, res) => {
+  const clientKey = process.env.TIKTOK_CLIENT_KEY;
+  const redirectUri = process.env.TIKTOK_REDIRECT_URI || 'https://tkapi.onrender.com/api/tiktok/callback';
+  const scope = process.env.TIKTOK_SCOPES || 'user.info.basic,video.list';
+
+  if (!clientKey) {
+    res.status(400).json({ message: 'TIKTOK_CLIENT_KEY is not configured.' });
+    return;
+  }
+
+  const state = crypto.randomBytes(16).toString('hex');
+  req.session.tiktokOAuthState = state;
+  const params = new URLSearchParams({
+    client_key: clientKey,
+    scope,
+    response_type: 'code',
+    redirect_uri: redirectUri,
+    state
+  });
+
+  res.json({
+    auth_url: `https://www.tiktok.com/v2/auth/authorize/?${params.toString()}`,
+    state
+  });
+});
+
+router.get('/api/tiktok/callback', (req, res) => {
+  if (!req.query.state || req.query.state !== req.session.tiktokOAuthState) {
+    res.status(400).render('public/message', {
+      title: 'TikTok 授权失败',
+      message: 'OAuth state 校验失败，请重新发起授权。'
+    });
+    return;
+  }
+
+  res.render('public/message', {
+    title: 'TikTok 授权回调已收到',
+    message: '当前 Express 部署已收到 TikTok 回调。完整 token 交换逻辑需要在后端安全保存 client_secret 后启用。'
+  });
+});
+
+router.post('/api/search/keywords', (req, res) => {
+  const keyword = String(req.body.keyword || '').trim();
+  const platforms = Array.isArray(req.body.platforms) ? req.body.platforms : [];
+
+  if (!keyword) {
+    res.status(400).json({ message: 'keyword is required.' });
+    return;
+  }
+
+  const warnings = platforms.map((platform) => {
+    if (platform === 'tiktok') {
+      return 'TikTok 关键词搜索需要官方对应权限，当前只能获取授权账号或允许范围内的数据。';
+    }
+    return `${platform}: official API integration is not enabled in this Express deployment yet.`;
+  });
+
+  res.json({
+    items: [],
+    warnings
+  });
 });
 
 function countryAllowed(allowedCountries, countryCode) {
