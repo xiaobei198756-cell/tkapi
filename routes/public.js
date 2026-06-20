@@ -1,10 +1,13 @@
 const express = require('express');
 const crypto = require('crypto');
+const fs = require('fs');
+const path = require('path');
 const { all, get, run } = require('../config/db');
 const { getCountryCode } = require('../config/geoip');
 const { hashValue, normalizeLeadInput } = require('../config/security');
 
 const router = express.Router();
+const tokenStorePath = path.join(__dirname, '..', 'data', 'tiktok-token.json');
 
 const legalPages = {
   terms: {
@@ -51,6 +54,49 @@ const legalPages = {
   }
 };
 
+function missingTikTokConfig() {
+  return ['TIKTOK_CLIENT_KEY', 'TIKTOK_CLIENT_SECRET', 'TIKTOK_REDIRECT_URI'].filter((key) => !process.env[key]);
+}
+
+function publicTikTokStatus() {
+  try {
+    const token = JSON.parse(fs.readFileSync(tokenStorePath, 'utf8'));
+    return {
+      connected: Boolean(token.access_token),
+      open_id: token.open_id || null,
+      scope: token.scope || process.env.TIKTOK_SCOPES || 'user.info.basic,video.list',
+      expires_at: token.expires_at || null,
+      message: token.access_token ? 'TikTok connected' : 'TikTok is not connected'
+    };
+  } catch (error) {
+    return {
+      connected: false,
+      open_id: null,
+      scope: process.env.TIKTOK_SCOPES || 'user.info.basic,video.list',
+      expires_at: null,
+      message: 'TikTok is not connected'
+    };
+  }
+}
+
+function saveTikTokToken(token) {
+  fs.mkdirSync(path.dirname(tokenStorePath), { recursive: true });
+  const now = Date.now();
+  const payload = {
+    open_id: token.open_id || null,
+    access_token: token.access_token,
+    refresh_token: token.refresh_token,
+    expires_in: token.expires_in,
+    refresh_expires_in: token.refresh_expires_in,
+    expires_at: token.expires_in ? new Date(now + Number(token.expires_in) * 1000).toISOString() : null,
+    scope: token.scope || null,
+    token_type: token.token_type || null,
+    updated_at: new Date(now).toISOString()
+  };
+  fs.writeFileSync(tokenStorePath, JSON.stringify(payload, null, 2));
+  return payload;
+}
+
 router.get('/terms', (req, res) => {
   res.render('public/legal', legalPages.terms);
 });
@@ -72,21 +118,25 @@ router.get('/settings/tiktok', (req, res) => {
 });
 
 router.get('/api/tiktok/status', (req, res) => {
+  const missing = missingTikTokConfig();
   res.json({
-    connected: false,
-    open_id: null,
-    scope: process.env.TIKTOK_SCOPES || 'user.info.basic,video.list',
-    message: 'TikTok OAuth token storage is not connected in this Express deployment yet.'
+    ...publicTikTokStatus(),
+    configured: missing.length === 0,
+    missing
   });
 });
 
 router.get('/api/tiktok/auth-url', (req, res) => {
   const clientKey = process.env.TIKTOK_CLIENT_KEY;
-  const redirectUri = process.env.TIKTOK_REDIRECT_URI || 'https://tkapi.onrender.com/api/tiktok/callback';
+  const redirectUri = process.env.TIKTOK_REDIRECT_URI;
   const scope = process.env.TIKTOK_SCOPES || 'user.info.basic,video.list';
+  const missing = ['TIKTOK_CLIENT_KEY', 'TIKTOK_REDIRECT_URI'].filter((key) => !process.env[key]);
 
-  if (!clientKey) {
-    res.status(400).json({ message: 'TIKTOK_CLIENT_KEY is not configured.' });
+  if (missing.length) {
+    res.status(400).json({
+      message: `Missing TikTok environment variable(s): ${missing.join(', ')}.`,
+      missing
+    });
     return;
   }
 
@@ -106,19 +156,64 @@ router.get('/api/tiktok/auth-url', (req, res) => {
   });
 });
 
-router.get('/api/tiktok/callback', (req, res) => {
-  if (!req.query.state || req.query.state !== req.session.tiktokOAuthState) {
-    res.status(400).render('public/message', {
-      title: 'TikTok 授权失败',
-      message: 'OAuth state 校验失败，请重新发起授权。'
+router.get('/api/tiktok/callback', async (req, res) => {
+  const missing = missingTikTokConfig();
+  if (missing.length) {
+    res.status(500).render('public/message', {
+      title: 'TikTok OAuth is not configured',
+      message: `Missing Render environment variable(s): ${missing.join(', ')}.`
     });
     return;
   }
 
-  res.render('public/message', {
-    title: 'TikTok 授权回调已收到',
-    message: '当前 Express 部署已收到 TikTok 回调。完整 token 交换逻辑需要在后端安全保存 client_secret 后启用。'
-  });
+  if (!req.query.state || req.query.state !== req.session.tiktokOAuthState) {
+    res.status(400).render('public/message', {
+      title: 'TikTok OAuth failed',
+      message: 'OAuth state validation failed. Please start the TikTok connection again.'
+    });
+    return;
+  }
+
+  if (!req.query.code) {
+    res.status(400).render('public/message', {
+      title: 'TikTok OAuth failed',
+      message: 'TikTok did not return an authorization code.'
+    });
+    return;
+  }
+
+  try {
+    const tokenResponse = await fetch('https://open.tiktokapis.com/v2/oauth/token/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        client_key: process.env.TIKTOK_CLIENT_KEY,
+        client_secret: process.env.TIKTOK_CLIENT_SECRET,
+        code: String(req.query.code),
+        grant_type: 'authorization_code',
+        redirect_uri: process.env.TIKTOK_REDIRECT_URI
+      })
+    });
+    const tokenJson = await tokenResponse.json();
+    if (!tokenResponse.ok) {
+      res.status(tokenResponse.status).render('public/message', {
+        title: 'TikTok token exchange failed',
+        message: tokenJson.error_description || tokenJson.message || tokenJson.error || 'TikTok API request failed.'
+      });
+      return;
+    }
+    saveTikTokToken(tokenJson);
+    delete req.session.tiktokOAuthState;
+    res.render('public/message', {
+      title: 'TikTok connected',
+      message: 'TikTok OAuth token was saved on the backend. Access token and refresh token are not shown in the browser.'
+    });
+  } catch (error) {
+    res.status(502).render('public/message', {
+      title: 'TikTok token exchange failed',
+      message: error.message || 'Network request to TikTok failed.'
+    });
+  }
 });
 
 router.post('/api/search/keywords', (req, res) => {
@@ -132,7 +227,7 @@ router.post('/api/search/keywords', (req, res) => {
 
   const warnings = platforms.map((platform) => {
     if (platform === 'tiktok') {
-      return 'TikTok 关键词搜索需要官方对应权限，当前只能获取授权账号或允许范围内的数据。';
+      return 'TikTok keyword search requires official permission. Current access is limited to authorized/account-permitted data.';
     }
     return `${platform}: official API integration is not enabled in this Express deployment yet.`;
   });
@@ -206,8 +301,8 @@ router.get('/go/:slug', async (req, res, next) => {
     const campaign = await get('SELECT * FROM campaigns WHERE slug = ? AND enabled = 1', [req.params.slug]);
     if (!campaign) {
       res.status(404).render('public/message', {
-        title: '链接不可用',
-        message: '该分流链接不存在或已停用。'
+        title: 'Link unavailable',
+        message: 'This campaign link does not exist or has been disabled.'
       });
       return;
     }
@@ -216,8 +311,8 @@ router.get('/go/:slug', async (req, res, next) => {
     if (!countryAllowed(campaign.allowed_countries, countryCode)) {
       await recordClick(req, campaign, null, null, countryCode);
       res.status(403).render('public/message', {
-        title: '暂不支持该地区',
-        message: '当前地区暂不在该客服链接的服务范围内。'
+        title: 'Region not supported',
+        message: 'This campaign link is not available in your current region.'
       });
       return;
     }
@@ -238,8 +333,8 @@ router.post('/go/:slug', async (req, res, next) => {
     const campaign = await get('SELECT * FROM campaigns WHERE slug = ? AND enabled = 1', [req.params.slug]);
     if (!campaign) {
       res.status(404).render('public/message', {
-        title: '链接不可用',
-        message: '该分流链接不存在或已停用。'
+        title: 'Link unavailable',
+        message: 'This campaign link does not exist or has been disabled.'
       });
       return;
     }
@@ -248,8 +343,8 @@ router.post('/go/:slug', async (req, res, next) => {
     if (!countryAllowed(campaign.allowed_countries, countryCode)) {
       await recordClick(req, campaign, null, null, countryCode);
       res.status(403).render('public/message', {
-        title: '暂不支持该地区',
-        message: '当前地区暂不在该客服链接的服务范围内。'
+        title: 'Region not supported',
+        message: 'This campaign link is not available in your current region.'
       });
       return;
     }
@@ -259,7 +354,7 @@ router.post('/go/:slug', async (req, res, next) => {
       res.status(400).render('public/lead-form', {
         campaign,
         countryCode,
-        error: '请填写手机号或线索编号，并勾选同意后再提交。',
+        error: 'Please enter a valid phone number or lead ID and accept the privacy notice.',
         leadIdentifier: req.body.lead_identifier || ''
       });
       return;
@@ -291,8 +386,8 @@ router.post('/go/:slug', async (req, res, next) => {
       if (!account) {
         await recordClick(req, campaign, userHash, null, countryCode);
         res.status(503).render('public/message', {
-          title: '当前客服繁忙',
-          message: '当前客服繁忙，请稍后再试。'
+          title: 'Support is busy',
+          message: 'No support account is currently available. Please try again later.'
         });
         return;
       }
