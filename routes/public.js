@@ -8,6 +8,8 @@ const { hashValue, normalizeLeadInput } = require('../config/security');
 
 const router = express.Router();
 const tokenStorePath = path.join(__dirname, '..', 'data', 'tiktok-token.json');
+const defaultTikTokApiBaseUrl = 'https://api.tikhub.io';
+const defaultTikTokSearchPath = '/api/v1/tiktok/web/fetch_search_video';
 
 const legalPages = {
   terms: {
@@ -95,6 +97,148 @@ function saveTikTokToken(token) {
   };
   fs.writeFileSync(tokenStorePath, JSON.stringify(payload, null, 2));
   return payload;
+}
+
+function toNumber(value) {
+  if (value === null || value === undefined || value === '') {
+    return null;
+  }
+  const number = Number(value);
+  return Number.isFinite(number) ? number : null;
+}
+
+function toIsoDate(value) {
+  const number = toNumber(value);
+  if (number) {
+    return new Date(number * 1000).toISOString();
+  }
+  return typeof value === 'string' ? value : null;
+}
+
+function firstValue(...values) {
+  return values.find((value) => value !== null && value !== undefined && value !== '') || null;
+}
+
+function looksLikeTikTokVideo(item) {
+  if (!item || typeof item !== 'object') {
+    return false;
+  }
+  return Boolean(
+    item.aweme_id ||
+      item.video_id ||
+      item.id ||
+      item.desc ||
+      item.title ||
+      item.share_url ||
+      item.statistics ||
+      item.stats
+  );
+}
+
+function collectTikTokVideos(value, acc = [], seen = new Set()) {
+  if (!value || acc.length >= 100) {
+    return acc;
+  }
+  if (Array.isArray(value)) {
+    value.forEach((item) => collectTikTokVideos(item, acc, seen));
+    return acc;
+  }
+  if (typeof value !== 'object') {
+    return acc;
+  }
+
+  const candidate = value.aweme_info || value.item || value;
+  const videoId = firstValue(candidate.aweme_id, candidate.video_id, candidate.id, candidate.item_id);
+  if (videoId && looksLikeTikTokVideo(candidate) && !seen.has(String(videoId))) {
+    seen.add(String(videoId));
+    acc.push(candidate);
+  }
+
+  for (const child of Object.values(value)) {
+    if (child && typeof child === 'object') {
+      collectTikTokVideos(child, acc, seen);
+    }
+  }
+  return acc;
+}
+
+function normalizeTikTokVideo(item, keyword) {
+  const stats = item.statistics || item.stats || item.stats_v2 || {};
+  const author = item.author || item.author_info || {};
+  const videoId = String(firstValue(item.aweme_id, item.video_id, item.id, item.item_id) || '');
+  const uniqueId = firstValue(author.unique_id, author.sec_uid, author.uid, item.author_unique_id);
+  return {
+    platform: 'tiktok',
+    keyword,
+    video_id: videoId,
+    title: firstValue(item.desc, item.title, item.item_desc, item.text, videoId),
+    url: firstValue(item.share_url, item.url, videoId && uniqueId ? `https://www.tiktok.com/@${uniqueId}/video/${videoId}` : null),
+    author: firstValue(author.unique_id, author.nickname, author.uid, item.author, item.author_name),
+    published_at: toIsoDate(firstValue(item.create_time, item.createTime, item.created_at)),
+    view_count: toNumber(firstValue(stats.play_count, stats.playCount, stats.view_count, stats.viewCount, item.play_count)),
+    like_count: toNumber(firstValue(stats.digg_count, stats.like_count, stats.likeCount, item.like_count)),
+    comment_count: toNumber(firstValue(stats.comment_count, stats.commentCount, item.comment_count)),
+    favorite_count: toNumber(firstValue(stats.collect_count, stats.favorite_count, stats.favoriteCount, item.favorite_count)),
+    share_count: toNumber(firstValue(stats.share_count, stats.shareCount, item.share_count)),
+    updated_at: new Date().toISOString()
+  };
+}
+
+function apiErrorMessage(status, payload) {
+  const raw = JSON.stringify(payload || {});
+  const lower = raw.toLowerCase();
+  if (status === 401 || status === 403 || lower.includes('permission') || lower.includes('unauthorized')) {
+    return 'TikTok API 权限不足，请检查 TIKTOK_API_TOKEN 是否有效或套餐权限是否开通。';
+  }
+  if (status === 402 || lower.includes('credit') || lower.includes('balance') || lower.includes('quota')) {
+    return 'TikTok API credits 不足，请检查第三方 API 账户余额。';
+  }
+  if (status === 429 || lower.includes('rate limit') || lower.includes('too many')) {
+    return 'TikTok API rate limit，请稍后再试。';
+  }
+  return 'TikTok API 请求失败，请查看 Render 后端日志。';
+}
+
+async function searchTikTokWithThirdPartyApi({ keyword, limit }) {
+  const token = process.env.TIKTOK_API_TOKEN;
+  if (!token) {
+    const error = new Error('缺少 TIKTOK_API_TOKEN，请先在 Render 环境变量中配置。');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const baseUrl = process.env.TIKTOK_API_BASE_URL || defaultTikTokApiBaseUrl;
+  const searchPath = process.env.TIKTOK_API_SEARCH_PATH || defaultTikTokSearchPath;
+  const url = new URL(searchPath, baseUrl);
+  url.searchParams.set('keyword', keyword);
+  url.searchParams.set('count', String(Math.min(Number(limit) || 20, 50)));
+  url.searchParams.set('offset', '0');
+
+  console.log(`[tiktok-search] keyword="${keyword}" endpoint="${url.origin}${url.pathname}"`);
+  const response = await fetch(url, {
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Accept: 'application/json'
+    }
+  });
+
+  let payload = null;
+  try {
+    payload = await response.json();
+  } catch (error) {
+    payload = { message: await response.text().catch(() => '') };
+  }
+
+  if (!response.ok) {
+    console.error('[tiktok-search] API error', response.status, payload);
+    const error = new Error(apiErrorMessage(response.status, payload));
+    error.statusCode = response.status;
+    throw error;
+  }
+
+  const videos = collectTikTokVideos(payload).slice(0, Math.min(Number(limit) || 20, 50));
+  return videos.map((video) => normalizeTikTokVideo(video, keyword));
 }
 
 router.get('/terms', (req, res) => {
@@ -216,24 +360,43 @@ router.get('/api/tiktok/callback', async (req, res) => {
   }
 });
 
-router.post('/api/search/keywords', (req, res) => {
+router.post('/api/search/keywords', async (req, res) => {
   const keyword = String(req.body.keyword || '').trim();
   const platforms = Array.isArray(req.body.platforms) ? req.body.platforms : [];
+  const limit = Number(req.body.limit || 50);
 
   if (!keyword) {
     res.status(400).json({ message: 'keyword is required.' });
     return;
   }
 
-  const warnings = platforms.map((platform) => {
+  const warnings = [];
+  const items = [];
+
+  for (const platform of platforms) {
     if (platform === 'tiktok') {
-      return 'TikTok keyword search requires official permission. Current access is limited to authorized/account-permitted data.';
+      try {
+        const tiktokItems = await searchTikTokWithThirdPartyApi({ keyword, limit });
+        items.push(...tiktokItems);
+        if (!tiktokItems.length) {
+          warnings.push('TikTok：没有搜索到数据。');
+        }
+      } catch (error) {
+        res.status(error.statusCode || 502).json({
+          message: error.message || 'TikTok API 请求失败，请查看 Render 后端日志。',
+          items,
+          warnings
+        });
+        return;
+      }
+      continue;
     }
-    return `${platform}: official API integration is not enabled in this Express deployment yet.`;
-  });
+
+    warnings.push(`${platform}: official API integration is not enabled in this Express deployment yet.`);
+  }
 
   res.json({
-    items: [],
+    items,
     warnings
   });
 });
