@@ -28,6 +28,10 @@
 
     <section class="tool-card">
       <div class="status-row">
+        <span>配置状态</span>
+        <strong id="configText">检查中...</strong>
+      </div>
+      <div class="status-row">
         <span>授权状态</span>
         <strong id="statusText">检查中...</strong>
       </div>
@@ -39,43 +43,74 @@
         <span>scope</span>
         <strong id="scopeText">-</strong>
       </div>
+      <div class="status-row">
+        <span>token 过期时间</span>
+        <strong id="expiresAt">-</strong>
+      </div>
+      <div id="errorBox" class="alert alert-warning mt-3 d-none"></div>
       <div class="site-actions">
         <button class="btn btn-success btn-lg" id="connectButton" type="button">连接 TikTok 账号</button>
       </div>
       <p class="text-muted mt-3 mb-0">
-        Redirect URI 应在 TikTok Developer 后台配置为固定 HTTPS 地址，例如 https://tkapi.onrender.com/api/tiktok/callback。
+        TikTok Developer 后台 Redirect URI 必须填写：https://tkapi.onrender.com/api/tiktok/callback
       </p>
     </section>
   </main>
 
   <script>
+    const configText = document.getElementById('configText');
     const statusText = document.getElementById('statusText');
     const openId = document.getElementById('openId');
     const scopeText = document.getElementById('scopeText');
+    const expiresAt = document.getElementById('expiresAt');
     const connectButton = document.getElementById('connectButton');
+    const errorBox = document.getElementById('errorBox');
+
+    function showError(message) {
+      errorBox.textContent = message;
+      errorBox.classList.remove('d-none');
+    }
+
+    function clearError() {
+      errorBox.textContent = '';
+      errorBox.classList.add('d-none');
+    }
 
     async function loadStatus() {
+      clearError();
       try {
         const response = await fetch('/api/tiktok/status');
         const json = await response.json();
+        const missing = Array.isArray(json.missing) ? json.missing : [];
+        configText.textContent = json.configured ? '已配置' : `缺少：${missing.join(', ') || '未知配置'}`;
         statusText.textContent = json.connected ? 'TikTok 已连接' : '未连接';
         openId.textContent = json.open_id || '-';
         scopeText.textContent = json.scope || '-';
+        expiresAt.textContent = json.expires_at ? new Date(json.expires_at).toLocaleString() : '-';
+        if (!json.configured) {
+          showError(`Render 环境变量未配置完整：${missing.join(', ')}。请先在 Render Environment 中补齐。`);
+        }
       } catch (error) {
+        configText.textContent = '检查失败';
         statusText.textContent = '无法连接后端接口';
+        showError('无法连接 /api/tiktok/status，请检查后端服务是否正常运行。');
       }
     }
 
     connectButton.addEventListener('click', async () => {
+      clearError();
       connectButton.disabled = true;
-      connectButton.textContent = '正在打开授权页面...';
+      connectButton.textContent = '正在生成授权链接...';
       try {
         const response = await fetch('/api/tiktok/auth-url');
         const json = await response.json();
-        if (!response.ok) throw new Error(json.message || '无法生成 TikTok 授权链接');
+        if (!response.ok) {
+          const missing = Array.isArray(json.missing) ? ` 缺少：${json.missing.join(', ')}` : '';
+          throw new Error(`${json.message || '无法生成 TikTok 授权链接。'}${missing}`);
+        }
         window.location.href = json.auth_url;
       } catch (error) {
-        alert(error.message || 'TikTok 授权失败');
+        showError(error.message || 'TikTok 授权失败。');
         connectButton.disabled = false;
         connectButton.textContent = '连接 TikTok 账号';
       }
