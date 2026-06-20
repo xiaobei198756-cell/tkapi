@@ -1,0 +1,34 @@
+<%- include('../partials/admin-header', { title: '客服账号' }) %>
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="h3 mb-0">客服账号</h1>
+  <a class="btn btn-primary" href="/admin/accounts/new">添加客服账号</a>
+</div>
+<div class="table-responsive">
+  <table class="table table-striped align-middle">
+    <thead>
+      <tr>
+        <th>ID</th><th>名称</th><th>平台</th><th>链接</th><th>国家</th><th>每日上限</th><th>启用</th><th>分配次数</th><th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% accounts.forEach((account) => { %>
+        <tr>
+          <td><%= account.id %></td>
+          <td><%= account.account_name %></td>
+          <td><%= account.platform %></td>
+          <td><a href="<%= account.contact_url %>" target="_blank" rel="noreferrer"><%= account.contact_url %></a></td>
+          <td><%= account.country_code %></td>
+          <td><%= account.daily_limit %></td>
+          <td><span class="badge <%= account.enabled ? 'text-bg-success' : 'text-bg-secondary' %>"><%= account.enabled ? '启用' : '停用' %></span></td>
+          <td><%= account.assignment_count %></td>
+          <td>
+            <form method="post" action="/admin/accounts/<%= account.id %>/toggle">
+              <button class="btn btn-sm btn-outline-secondary" type="submit"><%= account.enabled ? '停用' : '启用' %></button>
+            </form>
+          </td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</div>
+<%- include('../partials/admin-footer') %>

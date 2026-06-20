@@ -1,0 +1,37 @@
+<%- include('../partials/admin-header', { title: '添加客服账号' }) %>
+<h1 class="h3 mb-3">添加客服账号</h1>
+<% if (error) { %><div class="alert alert-danger"><%= error %></div><% } %>
+<form method="post" action="/admin/accounts" class="form-panel">
+  <div class="mb-3">
+    <label class="form-label" for="account_name">account_name</label>
+    <input class="form-control" id="account_name" name="account_name" value="<%= account.account_name || '' %>" required>
+  </div>
+  <div class="mb-3">
+    <label class="form-label" for="platform">platform</label>
+    <select class="form-select" id="platform" name="platform" required>
+      <option value="whatsapp" <%= account.platform === 'whatsapp' ? 'selected' : '' %>>whatsapp</option>
+      <option value="telegram" <%= account.platform === 'telegram' ? 'selected' : '' %>>telegram</option>
+    </select>
+  </div>
+  <div class="mb-3">
+    <label class="form-label" for="contact_url">contact_url</label>
+    <input class="form-control" id="contact_url" name="contact_url" value="<%= account.contact_url || '' %>" placeholder="https://wa.me/15551234567 或 https://t.me/username" required>
+  </div>
+  <div class="row">
+    <div class="col-md-6 mb-3">
+      <label class="form-label" for="country_code">country_code</label>
+      <input class="form-control" id="country_code" name="country_code" value="<%= account.country_code || '' %>" placeholder="US" maxlength="2" required>
+    </div>
+    <div class="col-md-6 mb-3">
+      <label class="form-label" for="daily_limit">daily_limit</label>
+      <input class="form-control" id="daily_limit" name="daily_limit" type="number" min="1" value="<%= account.daily_limit || 100 %>" required>
+    </div>
+  </div>
+  <div class="form-check mb-3">
+    <input class="form-check-input" id="enabled" name="enabled" type="checkbox" checked>
+    <label class="form-check-label" for="enabled">启用</label>
+  </div>
+  <button class="btn btn-primary" type="submit">保存</button>
+  <a class="btn btn-link" href="/admin/accounts">返回</a>
+</form>
+<%- include('../partials/admin-footer') %>

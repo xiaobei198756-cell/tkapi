@@ -1,0 +1,38 @@
+<%- include('../partials/admin-header', { title: '点击记录' }) %>
+<h1 class="h3 mb-3">点击记录</h1>
+<form class="row g-2 mb-3" method="get" action="/admin/clicks">
+  <div class="col-md-3">
+    <input class="form-control" type="date" name="date" value="<%= filters.date %>">
+  </div>
+  <div class="col-md-4">
+    <select class="form-select" name="campaign_id">
+      <option value="">全部 Campaign</option>
+      <% campaigns.forEach((campaign) => { %>
+        <option value="<%= campaign.id %>" <%= String(campaign.id) === filters.campaignId ? 'selected' : '' %>><%= campaign.campaign_name %></option>
+      <% }) %>
+    </select>
+  </div>
+  <div class="col-md-2">
+    <button class="btn btn-outline-primary w-100" type="submit">筛选</button>
+  </div>
+</form>
+<div class="table-responsive">
+  <table class="table table-striped table-sm align-middle">
+    <thead><tr><th>时间</th><th>Campaign</th><th>客服</th><th>平台</th><th>国家</th><th>user_hash</th><th>ip_hash</th><th>跳转</th></tr></thead>
+    <tbody>
+      <% clicks.forEach((click) => { %>
+        <tr>
+          <td><%= click.clicked_at %></td>
+          <td><%= click.campaign_name %></td>
+          <td><%= click.account_name || '-' %></td>
+          <td><%= click.platform || '-' %></td>
+          <td><%= click.country_code || '-' %></td>
+          <td class="hash-cell"><%= click.user_hash || '-' %></td>
+          <td class="hash-cell"><%= click.ip_hash || '-' %></td>
+          <td><%= click.redirect_url || '-' %></td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</div>
+<%- include('../partials/admin-footer') %>
