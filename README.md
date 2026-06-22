@@ -1,205 +1,402 @@
-# WhatsApp / Telegram 客服线索分流系统
+# Social Video Tracker
 
-这是一个合规的客服线索分流系统：用户主动点击推广链接，主动提交手机号或线索编号并同意隐私提示后，系统按规则分配到 WhatsApp 或 Telegram 客服账号。系统只做跳转，不实现自动群发、自动私信、批量注册或规避平台限制。
+Multi-platform video keyword collection system with a FastAPI backend and React/Vite frontend.
 
-## 功能
+Windows local setup: see [RUNBOOK_WINDOWS.md](RUNBOOK_WINDOWS.md).
 
-- 管理后台登录
-- WhatsApp / Telegram 客服账号管理
-- Campaign 分流链接，例如 `/go/campaign-a`
-- Round-robin 轮流分配
-- 每日新线索分配上限
-- 国家/地区访问限制
-- 同一 `campaign + user_hash` 固定分配同一客服
-- 手机号/线索编号使用 SHA-256 哈希保存
-- IP 地址使用 SHA-256 哈希保存
-- 点击日志、日期筛选和基础统计
+## Current Scope
 
-## 项目结构
+- YouTube: real YouTube Data API v3 collection is implemented.
+- X: official X API v2 recent-search collection is implemented when a valid bearer token and plan access are configured. Video intent is queried with `has:videos`, for example `crypto has:videos`.
+- TikTok: active code keeps only official TikTok API/OAuth logic. Third-party TikTok API code is archived only and is not part of runtime.
+- Instagram and Facebook: official Meta Graph API adapter scaffolds are present and return clear permission/configuration status until approved access is configured.
+- Database: SQLite by default with SQLAlchemy models for jobs and video records.
+- Frontend: home, keyword search, platform selection, ranking views, platform configuration status, job progress, video records, and CSV export.
+
+## Structure
 
 ```text
-.
-├── config/
-│   ├── db.js
-│   ├── geoip.js
-│   ├── schema.js
-│   └── security.js
-├── data/
-├── public/
-│   └── css/
-│       └── app.css
-├── routes/
-│   ├── admin.js
-│   ├── auth.js
-│   └── public.js
-├── scripts/
-│   └── init-db.js
-├── views/
-│   ├── admin/
-│   ├── partials/
-│   └── public/
-├── .env.example
-├── package.json
-├── README.md
-└── server.js
+social-video-tracker/
+  archive/old_version/
+    2026-05-31-tiktok/
+    2026-05-31-tiktok-hot-monitor/
+  backend/
+    app/
+      main.py config.py database.py models.py schemas.py
+      routers/jobs.py videos.py export.py system.py
+      services/collector.py websocket_manager.py
+      services/platforms/base.py youtube.py tiktok.py x.py instagram.py facebook.py
+      utils/csv_export.py rate_limit.py
+    tests/test_smoke.py
+    requirements.txt .env.example README.md
+  frontend/
+    src/main.tsx App.tsx api/client.ts components/JobForm.tsx JobProgress.tsx VideoTable.tsx PlatformStatus.tsx types.ts
+    package.json vite.config.ts tailwind.config.js .env.example README.md SMOKE_TEST.md
+  scripts/
+    youtube_collector.py x_collector.py tiktok_collector.py instagram_collector.py facebook_collector.py
+  deployment/
+    RENDER.md ENVIRONMENT.md SERVER.md COMMANDS.md
+  docs/
+    PROJECT_OVERVIEW.md API_SETUP.md RENDER_DEPLOYMENT.md TROUBLESHOOTING.md CHANGELOG.md
+  .env.example
+  TODO.md
+  render.yaml
 ```
 
-## 数据库表
+## Windows Quick Start
 
-### accounts
-
-- `id`
-- `account_name`
-- `platform`
-- `contact_url`
-- `country_code`
-- `daily_limit`
-- `enabled`
-- `created_at`
-- `updated_at`
-
-### campaigns
-
-- `id`
-- `campaign_name`
-- `slug`
-- `allowed_countries`
-- `enabled`
-- `last_assigned_account_id`
-- `created_at`
-- `updated_at`
-
-### lead_assignments
-
-- `id`
-- `campaign_id`
-- `user_hash`
-- `assigned_account_id`
-- `created_at`
-
-### click_logs
-
-- `id`
-- `campaign_id`
-- `user_hash`
-- `assigned_account_id`
-- `platform`
-- `country_code`
-- `ip_hash`
-- `user_agent`
-- `redirect_url`
-- `clicked_at`
-
-### admin_users
-
-- `id`
-- `username`
-- `password_hash`
-- `created_at`
-
-## 安装和运行
-
-1. 安装依赖
-
-```bash
-npm install
-```
-
-2. 创建环境变量
-
-```bash
-cp .env.example .env
-```
-
-Windows PowerShell:
+Backend:
 
 ```powershell
-Copy-Item .env.example .env
+cd backend
+.\.venv\Scripts\activate
+uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 ```
 
-建议修改 `.env` 中的 `SESSION_SECRET`、`HASH_SECRET` 和管理员密码。
+Frontend:
 
-3. 初始化数据库和示例数据
-
-```bash
-npm run init-db
-```
-
-默认会创建：
-
-- 管理员：`admin`
-- 密码：`admin123456`
-- 示例 Campaign：`/go/campaign-a`
-- 示例 WhatsApp 和 Telegram 客服账号
-
-4. 启动项目
-
-```bash
-npm start
-```
-
-开发模式：
-
-```bash
+```powershell
+cd frontend
+npm install
 npm run dev
 ```
 
-访问：
+Open:
 
-- 管理后台：`http://localhost:3000/admin`
-- 示例分流链接：`http://localhost:3000/go/campaign-a?country=US`
+- Backend docs: http://127.0.0.1:8000/docs
+- Frontend page: http://localhost:5173/
 
-## 国家/地区识别
+## First-Time Backend Setup
 
-开发阶段支持用 URL 参数模拟国家：
-
-```text
-/go/campaign-a?country=US
+```powershell
+cd backend
+py -3 -m venv .venv
+.\.venv\Scripts\activate
+python -m pip install --upgrade pip
+pip install -r requirements.txt
+copy .env.example .env
+pytest
 ```
 
-生产部署时可通过反向代理或 CDN 注入国家头：
-
-- `CF-IPCountry`
-- `X-Vercel-IP-Country`
-- `X-Country-Code`
-
-`config/geoip.js` 中已经预留了 GeoIP 接口位置。IP 地区识别只作为辅助，不作为唯一身份判断。
-
-## 联系链接格式
-
-WhatsApp:
+Expected smoke test result:
 
 ```text
-https://wa.me/15551234567
+5 passed
 ```
 
-Telegram:
+## Frontend Configuration
+
+The frontend defaults to:
 
 ```text
-https://t.me/username
+VITE_API_BASE_URL=http://127.0.0.1:8000
 ```
 
-## 合规说明
+You can copy `frontend/.env.example` to `frontend/.env.local` if you need to override it.
 
-- 用户必须主动提交手机号或线索编号。
-- 页面会显示隐私提示，并要求用户勾选同意。
-- 数据库不保存明文手机号。
-- 数据库不保存明文 IP。
-- 系统不会自动发送 WhatsApp 消息。
-- 系统不会自动发送 Telegram 消息。
-- 系统不包含批量私信、批量注册、隐藏身份或规避平台风控功能。
+## API Checks
 
-## 分配逻辑
+- `GET http://127.0.0.1:8000/api/health` returns `{"status":"ok","service":"social-video-tracker"}`.
+- `GET http://127.0.0.1:8000/api/platform-status` returns configuration status for YouTube, X, TikTok, Instagram, and Facebook.
+- `GET http://127.0.0.1:8000/docs` opens the interactive backend docs.
+- `GET /api/health` returns `{"status":"ok","service":"social-video-tracker"}`.
+- `GET /api/platform-status` returns configuration status for YouTube, X, TikTok, Instagram, and Facebook.
+- `POST /api/jobs` accepts `keywords`, `platforms`, `max_results`, `date_start`, `date_end`, and `refresh_interval_minutes`.
+- `POST /api/search/keywords` accepts one keyword plus selected platforms and returns a unified ranking payload.
+- `GET /api/videos` lists collected videos.
+- `GET /api/export/csv` exports collected videos.
+- `WS /ws/jobs/{job_id}` streams progress.
 
-1. 用户访问 `/go/:slug`
-2. 检查 Campaign 是否存在且启用
-3. 检查国家/地区是否允许访问
-4. 显示手机号或线索编号填写页面
-5. 用户勾选同意并提交
-6. 系统生成 `user_hash`
-7. 查询 `lead_assignments`
-8. 如果已分配，继续跳转原客服
-9. 如果未分配，从可用客服中 round-robin 轮流分配
-10. 达到 `daily_limit` 的账号当天不接收新线索
-11. 写入点击日志
-12. 跳转到 WhatsApp 或 Telegram 链接
+Example job payload:
+
+```json
+{
+  "keywords": ["crypto", "ai news"],
+  "platforms": ["youtube"],
+  "max_results": 5,
+  "date_start": null,
+  "date_end": null,
+  "refresh_interval_minutes": 30
+}
+```
+
+## YouTube Real API Test
+
+The backend reads `YOUTUBE_API_KEY` from environment variables, project-root `.env`, or `backend/.env`. Do not hard-code the key in source code.
+
+1. Open `backend/.env` or project-root `.env`.
+2. Add your API key:
+
+```text
+YOUTUBE_API_KEY=your_YouTube_API_Key
+```
+
+3. Restart the backend.
+4. Open the frontend at http://localhost:5173/.
+5. Enter keywords, for example:
+
+```text
+crypto
+ai news
+football highlights
+```
+
+6. Select only YouTube.
+7. Set `max_results` to `5`.
+8. Click Start collection.
+9. Confirm the video table shows platform, keyword, video URL, title, author, published time, likes, comments, favorites, shares, and collected time.
+
+You can also test the direct YouTube search endpoint:
+
+```text
+http://127.0.0.1:8000/api/youtube/search?keyword=crypto&max_results=5
+```
+
+Expected JSON fields:
+
+- `platform`
+- `keyword`
+- `video_url`
+- `title`
+- `author`
+- `published_at`
+- `likes`
+- `comments`
+- `favorites`
+- `shares`
+- `collected_at`
+
+Frontend collection flow:
+
+1. Open http://localhost:5173/.
+2. Use the Collection Setup panel.
+3. Enter `crypto` or `ai news`.
+4. Select only YouTube.
+5. Set max results to `5`.
+6. Click Start collection.
+7. Expected: the Video Records table shows ranking, platform, keyword, video URL, title, author, published time, likes, comments, favorites, shares, and collected time.
+
+Possible errors:
+
+- `API Key is not configured`: set `YOUTUBE_API_KEY` and restart the backend.
+- `API request failed`: check network access and the backend terminal.
+- `No videos found`: try another keyword.
+- `YouTube API quota is insufficient`: wait for quota reset or use another valid quota-enabled key.
+
+## Local Acceptance Flow
+
+1. Start backend:
+
+```powershell
+cd backend
+.\.venv\Scripts\activate
+uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
+```
+
+2. Open backend checks:
+
+- http://127.0.0.1:8000/api/health
+- http://127.0.0.1:8000/api/platform-status
+- http://127.0.0.1:8000/docs
+
+3. Start frontend:
+
+```powershell
+cd frontend
+npm install
+npm run dev
+```
+
+4. Open http://localhost:5173/.
+
+5. The frontend should show platform configuration status, keyword input, platform multi-select, start collection button, progress panel, video table, and CSV export button.
+
+## Platform Field Notes
+
+All platform collector results exposed by the API, ranking UI, and `scripts/` output use the same public fields: `platform`, `keyword`, `video_url`, `title`, `author`, `published_at`, `likes`, `comments`, `favorites`, `shares`, and `collected_at`.
+
+- YouTube: implemented via YouTube Data API v3; unavailable `favorites` and `shares` values are `null`.
+- X: official API search uses `keyword has:videos`; fields unavailable through the granted API plan are `null`.
+- TikTok: requires approved official API access; unavailable fields are `null`.
+- Instagram: requires Meta Graph API permissions; keyword-wide search is permission-limited and unavailable fields are `null`.
+- Facebook: requires Meta Graph API permissions for owned pages or approved public content access; unavailable fields are `null`.
+
+Internal database and adapter names may still use platform-native fields such as `like_count` or `author_name`, but those names are converted before data leaves the backend.
+
+## Compliance
+
+This project uses official API paths only. It does not implement unsupported access methods, credential misuse, proxy-based evasion, or automated simulated user login. Fields unavailable from a platform API are stored as `null`, and permission/configuration gaps are surfaced through `source_status` and `/api/platform-status`.
+
+## TikTok Official API Setup
+
+Add these values to `backend/.env` or the project-root `.env`:
+
+```text
+TIKTOK_CLIENT_KEY=
+TIKTOK_CLIENT_SECRET=
+TIKTOK_API_PROVIDER=official
+TIKTOK_REDIRECT_URI=https://your-domain.com/api/tiktok/callback
+TIKTOK_SCOPES=user.info.basic,video.list
+FRONTEND_URL=http://localhost:5173
+```
+
+The TikTok Developer Center Redirect URI must exactly match `TIKTOK_REDIRECT_URI`.
+TikTok keyword search requires official TikTok Research API / keyword search permission approval.
+Do not configure third-party TikTok variables such as `TIKTOK_API_TOKEN` or `TIKTOK_API_BASE_URL` in the active project.
+
+Backend endpoints:
+
+- `GET /api/tiktok/auth-url`
+- `GET /api/tiktok/callback`
+- `GET /api/tiktok/status`
+- `POST /api/tiktok/token/refresh`
+- `GET /api/tiktok/user/videos`
+- `POST /api/tiktok/videos/query`
+
+Frontend flow:
+
+1. Start backend and frontend.
+2. Open `http://localhost:5173/`.
+3. In TikTok API Settings, click Connect TikTok Account.
+4. Complete TikTok OAuth.
+5. Return to the frontend and click Get My Videos.
+
+Tokens are saved only on the backend in `backend/.tiktok_token.json`, which is ignored by Git. The frontend never receives `access_token`, `refresh_token`, or `client_secret`.
+
+## X API Billing Estimate
+
+Add these optional values to `backend/.env` to enable local X API cost estimates:
+
+```text
+X_CREDIT_BALANCE_USD=0
+X_POST_READ_UNIT_COST=0.005
+X_USER_READ_UNIT_COST=0.010
+X_MAX_RESULTS_LIMIT=50
+```
+
+`X_CREDIT_BALANCE_USD` is a manually entered local balance from your X Developer Console. The backend does not expose `X_BEARER_TOKEN` to the frontend and cannot guarantee the real X account balance.
+
+Billing endpoints:
+
+- `GET /api/x/billing/status`
+- `GET /api/x/billing/usage`
+- `POST /api/x/billing/balance`
+- `GET /api/x/usage/official`
+
+Example balance sync:
+
+```json
+{
+  "balance_usd": 10
+}
+```
+
+X usage estimates are stored in `x_usage_ledger`. The official usage endpoint is only for reference and reconciliation; failures do not affect YouTube collection.
+
+## TKAPI Render Deployment
+
+Public app URL:
+
+```text
+https://tkapi.onrender.com/
+```
+
+Routes served by the React frontend:
+
+- Home: `https://tkapi.onrender.com/`
+- Keywords dashboard: `https://tkapi.onrender.com/keywords`
+- Rankings: `https://tkapi.onrender.com/rankings`
+- Platform rankings: `https://tkapi.onrender.com/rankings/platform/youtube`
+- Keyword rankings: `https://tkapi.onrender.com/rankings/keyword/crypto`
+- TikTok API settings: `https://tkapi.onrender.com/settings/tiktok`
+- Terms: `https://tkapi.onrender.com/terms`
+- Privacy: `https://tkapi.onrender.com/privacy`
+
+Backend API routes stay under `/api`. FastAPI serves the built frontend for all non-API paths, so refreshing `/keywords`, `/settings/tiktok`, `/terms`, or `/privacy` will not 404.
+
+Keyword search API:
+
+```http
+POST /api/search/keywords
+```
+
+Example:
+
+```json
+{
+  "keyword": "crypto prediction market",
+  "platforms": ["tiktok", "youtube"],
+  "min_views": 1000,
+  "min_likes": 100,
+  "date_range": "7d",
+  "limit": 50
+}
+```
+
+TikTok keyword search uses only official API capabilities. If official permission is unavailable, the API returns a clear permission warning and does not collect restricted data.
+
+Render build command:
+
+```bash
+pip install -r backend/requirements.txt && cd frontend && npm ci && npm run build
+```
+
+Render start command:
+
+```bash
+cd backend && uvicorn app.main:app --host 0.0.0.0 --port $PORT
+```
+
+Render health check path:
+
+```text
+/health
+```
+
+Required Render environment variables:
+
+```text
+YOUTUBE_API_KEY=
+TIKTOK_CLIENT_KEY=
+TIKTOK_CLIENT_SECRET=
+TIKTOK_API_PROVIDER=official
+TIKTOK_REDIRECT_URI=https://tkapi.onrender.com/api/tiktok/callback
+TIKTOK_SCOPES=user.info.basic,video.list
+FRONTEND_URL=https://tkapi.onrender.com
+VITE_API_BASE_URL=https://tkapi.onrender.com
+CORS_ORIGINS=https://tkapi.onrender.com,http://localhost:5173,http://127.0.0.1:5173
+```
+
+TikTok Developer Center Redirect URI:
+
+```text
+https://tkapi.onrender.com/api/tiktok/callback
+```
+
+It must be a fixed HTTPS URL with no query string and no `#` fragment.
+
+## Docs And Migration Notes
+
+- Project overview: `docs/PROJECT_OVERVIEW.md`
+- API setup: `docs/API_SETUP.md`
+- Render deployment: `docs/RENDER_DEPLOYMENT.md`
+- Local Render-style testing: `docs/LOCAL_RENDER_TESTING.md`
+- Troubleshooting: `docs/TROUBLESHOOTING.md`
+- Change history: `docs/CHANGELOG.md`
+- Deployment notes: `deployment/`
+- Next work items: `TODO.md`
+
+Old code was copied into `archive/old_version/` for reference. Archived third-party TikTok code must not be imported by `backend/`, `frontend/`, or `scripts/`.
+
+## Verification Commands
+
+```powershell
+cd C:\Users\Administrator\Documents\Codex\2026-06-14\new-chat\outputs\social-video-tracker
+rg -n -i "tikhub|TIKTOK_API_TOKEN|fetch_search_video|TIKTOK_API_BASE_URL|rapidapi|apify|scraper" backend frontend scripts deployment docs README.md render.yaml .env.example backend/.env.example
+cd backend
+.\.venv\Scripts\python.exe -m pytest
+cd ..\frontend
+npm run build
+cd ..
+.\backend\.venv\Scripts\python.exe -m py_compile scripts\common.py scripts\youtube_collector.py scripts\x_collector.py scripts\tiktok_collector.py scripts\instagram_collector.py scripts\facebook_collector.py
+```

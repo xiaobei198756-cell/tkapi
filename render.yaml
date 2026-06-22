@@ -1,24 +1,55 @@
 services:
   - type: web
     name: tkapi
-    env: node
+    env: python
     plan: free
-    buildCommand: npm install
-    startCommand: npm start
+    buildCommand: pip install -r backend/requirements.txt && cd frontend && npm ci && npm run build
+    startCommand: cd backend && uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
     envVars:
-      - key: SESSION_SECRET
+      - key: DATABASE_URL
+        value: sqlite:///./social_video_tracker.db
+      - key: CORS_ORIGINS
+        value: https://tkapi.onrender.com,http://localhost:5173,http://127.0.0.1:5173
+      - key: FRONTEND_URL
+        value: https://tkapi.onrender.com
+      - key: VITE_API_BASE_URL
+        value: https://tkapi.onrender.com
+      - key: YOUTUBE_API_KEY
         sync: false
-      - key: HASH_SECRET
+      - key: X_BEARER_TOKEN
         sync: false
-      - key: TIKTOK_API_TOKEN
+      - key: X_API_KEY
         sync: false
-      - key: TIKTOK_API_BASE_URL
-        value: https://api.tikhub.io
+      - key: X_API_SECRET
+        sync: false
+      - key: X_ACCESS_TOKEN
+        sync: false
+      - key: X_ACCESS_TOKEN_SECRET
+        sync: false
+      - key: X_CREDIT_BALANCE_USD
+        value: "0"
+      - key: X_POST_READ_UNIT_COST
+        value: "0.005"
+      - key: X_USER_READ_UNIT_COST
+        value: "0.010"
+      - key: X_MAX_RESULTS_LIMIT
+        value: "50"
       - key: TIKTOK_CLIENT_KEY
         sync: false
       - key: TIKTOK_CLIENT_SECRET
         sync: false
+      - key: TIKTOK_ACCESS_TOKEN
+        sync: false
+      - key: TIKTOK_API_PROVIDER
+        value: official
       - key: TIKTOK_REDIRECT_URI
         value: https://tkapi.onrender.com/api/tiktok/callback
       - key: TIKTOK_SCOPES
         value: user.info.basic,video.list
+      - key: META_ACCESS_TOKEN
+        sync: false
+      - key: IG_USER_ID
+        sync: false
+      - key: FB_PAGE_IDS
+        sync: false
