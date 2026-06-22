@@ -200,21 +200,21 @@ function apiErrorMessage(status, payload) {
   const raw = JSON.stringify(payload || {});
   const lower = raw.toLowerCase();
   if (status === 401 || status === 403 || lower.includes('permission') || lower.includes('unauthorized')) {
-    return 'TikTok API 权限不足，请检查 TIKTOK_API_TOKEN 是否有效或套餐权限是否开通。';
+    return 'TikTok API permission is insufficient. Please verify that the API token is valid and the required access is enabled.';
   }
   if (status === 402 || lower.includes('credit') || lower.includes('balance') || lower.includes('quota')) {
-    return 'TikTok API credits 不足，请检查第三方 API 账户余额。';
+    return 'TikTok API credits or quota may be insufficient. Please check the API account balance and quota status.';
   }
   if (status === 429 || lower.includes('rate limit') || lower.includes('too many')) {
     return 'TikTok API rate limit，请稍后再试。';
   }
-  return 'TikTok API 请求失败，请查看 Render 后端日志。';
+  return 'TikTok API request failed. Please review the Render backend logs.';
 }
 
 async function searchTikTokWithThirdPartyApi({ keyword, limit }) {
   const token = process.env.TIKTOK_API_TOKEN;
   if (!token) {
-    const error = new Error('缺少 TIKTOK_API_TOKEN，请先在 Render 环境变量中配置。');
+    const error = new Error('Missing TIKTOK_API_TOKEN. Please configure it in the Render environment variables first.');
     error.statusCode = 400;
     throw error;
   }
@@ -395,7 +395,7 @@ router.post('/api/search/keywords', async (req, res) => {
         }
       } catch (error) {
         res.status(error.statusCode || 502).json({
-          message: error.message || 'TikTok API 请求失败，请查看 Render 后端日志。',
+          message: error.message || 'TikTok API request failed. Please review the Render backend logs.',
           items,
           warnings
         });
@@ -585,4 +585,5 @@ router.post('/go/:slug', async (req, res, next) => {
 });
 
 module.exports = router;
+
 
