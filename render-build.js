@@ -10,7 +10,7 @@ const runtimeVenvDir = path.join(rootDir, ".render-python");
 function run(command, args, options = {}) {
   const result = spawnSync(command, args, {
     cwd: options.cwd || rootDir,
-    env: process.env,
+    env: options.env || process.env,
     stdio: "inherit",
     shell: process.platform === "win32"
   });
@@ -85,5 +85,12 @@ function preparePython() {
 
 const python = preparePython();
 run(python.command, [...python.installArgs, "-r", path.join("backend", "requirements.txt")]);
-run(process.platform === "win32" ? "npm.cmd" : "npm", ["ci"], { cwd: frontendDir });
+run(process.platform === "win32" ? "npm.cmd" : "npm", ["ci", "--include=dev"], {
+  cwd: frontendDir,
+  env: {
+    ...process.env,
+    NODE_ENV: "development",
+    NPM_CONFIG_PRODUCTION: "false"
+  }
+});
 run(process.platform === "win32" ? "npm.cmd" : "npm", ["run", "build"], { cwd: frontendDir });
