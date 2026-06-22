@@ -8,6 +8,8 @@ const { hashValue, normalizeLeadInput } = require('../config/security');
 
 const router = express.Router();
 const tokenStorePath = path.join(__dirname, '..', 'data', 'tiktok-token.json');
+const defaultTikTokRedirectUri = 'https://tkapi.onrender.com/api/tiktok/callback';
+const defaultTikTokScopes = 'user.info.basic,video.list';
 const defaultTikTokApiBaseUrl = 'https://api.tikhub.io';
 const defaultTikTokSearchPath = '/api/v1/tiktok/web/fetch_search_video';
 
@@ -69,7 +71,7 @@ const legalPages = {
 };
 
 function missingTikTokConfig() {
-  return ['TIKTOK_CLIENT_KEY', 'TIKTOK_CLIENT_SECRET', 'TIKTOK_REDIRECT_URI'].filter((key) => !process.env[key]);
+  return ['TIKTOK_CLIENT_KEY', 'TIKTOK_CLIENT_SECRET'].filter((key) => !process.env[key]);
 }
 
 function publicTikTokStatus() {
@@ -86,7 +88,7 @@ function publicTikTokStatus() {
     return {
       connected: false,
       open_id: null,
-      scope: process.env.TIKTOK_SCOPES || 'user.info.basic,video.list',
+      scope: process.env.TIKTOK_SCOPES || defaultTikTokScopes,
       expires_at: null,
       message: 'TikTok is not connected'
     };
@@ -284,9 +286,9 @@ router.get('/api/tiktok/status', (req, res) => {
 
 router.get('/api/tiktok/auth-url', (req, res) => {
   const clientKey = process.env.TIKTOK_CLIENT_KEY;
-  const redirectUri = process.env.TIKTOK_REDIRECT_URI;
-  const scope = process.env.TIKTOK_SCOPES || 'user.info.basic,video.list';
-  const missing = ['TIKTOK_CLIENT_KEY', 'TIKTOK_REDIRECT_URI'].filter((key) => !process.env[key]);
+  const redirectUri = process.env.TIKTOK_REDIRECT_URI || defaultTikTokRedirectUri;
+  const scope = process.env.TIKTOK_SCOPES || defaultTikTokScopes;
+  const missing = ['TIKTOK_CLIENT_KEY'].filter((key) => !process.env[key]);
 
   if (missing.length) {
     res.status(400).json({
@@ -347,7 +349,7 @@ router.get('/api/tiktok/callback', async (req, res) => {
         client_secret: process.env.TIKTOK_CLIENT_SECRET,
         code: String(req.query.code),
         grant_type: 'authorization_code',
-        redirect_uri: process.env.TIKTOK_REDIRECT_URI
+        redirect_uri: process.env.TIKTOK_REDIRECT_URI || defaultTikTokRedirectUri
       })
     });
     const tokenJson = await tokenResponse.json();
@@ -585,5 +587,6 @@ router.post('/go/:slug', async (req, res, next) => {
 });
 
 module.exports = router;
+
 
 
