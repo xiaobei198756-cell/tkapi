@@ -15,42 +15,54 @@ const legalPages = {
   terms: {
     title: 'Terms of Service',
     intro:
-      'TKAPI is a TikTok public video data analysis tool for video data analysis, trend analysis, and account features.',
+      'TKAPI helps authorized users connect with TikTok APIs to manage account login, authorized data access, and compliant creator/content workflows.',
     sections: [
       {
-        heading: 'Acceptable Use',
+        heading: 'Service Availability',
         body:
-          'Users must use this service lawfully. Users may not abuse the API, bypass platform rules, or infringe the privacy, copyright, or other lawful rights of others.'
+          'TKAPI is available for users and businesses in regions where TikTok services are available. It is not intended for Mainland China.'
       },
       {
-        heading: 'Third-Party Data Availability',
+        heading: 'Authorized Use',
         body:
-          'TKAPI does not guarantee the permanent availability of third-party platform data. Specific data access depends on TikTok API access or publicly available data permissions.'
+          'Users must comply with TikTok Developer Terms, TikTok API permissions, applicable platform policies, and all laws that apply to their use of the service.'
       },
       {
-        heading: 'Agreement',
-        body: 'By using this service, users agree to these terms.'
+        heading: 'API Permissions',
+        body:
+          'TKAPI uses official TikTok API and OAuth flows. Users may only access account, creator, or content data they are authorized to access through granted platform permissions.'
+      },
+      {
+        heading: 'Contact',
+        body:
+          'For support or compliance questions, contact xiaobei198756@gmail.com.'
       }
     ]
   },
   privacy: {
     title: 'Privacy Policy',
-    intro: 'TKAPI processes data only within the scope authorized by users or allowed by the TikTok API.',
+    intro:
+      'TKAPI uses official platform APIs and permissioned OAuth flows to support account login, authorized data access, and compliant creator/content workflows.',
     sections: [
+      {
+        heading: 'Public Access',
+        body:
+          'The homepage, Terms of Service, and Privacy Policy are publicly available without login for users, businesses, and platform review teams.'
+      },
+      {
+        heading: 'Credential Handling',
+        body:
+          'Client secrets, access tokens, and refresh tokens are not displayed in the frontend. Sensitive credentials are used only by backend services controlled by the service operator.'
+      },
       {
         heading: 'Data Use',
         body:
-          'Data is used only for video data analysis, trend analysis, account features, and service optimization.'
-      },
-      {
-        heading: 'Data Sharing',
-        body:
-          'TKAPI does not sell user data and does not use user data for unauthorized purposes.'
+          'Authorized data is used to support account login, account-permitted data access, creator/content workflows, reporting, and service operation.'
       },
       {
         heading: 'Contact',
         body:
-          'If users need to delete data or ask data-related questions, they can contact xiaobei198756@gmail.com.'
+          'For privacy questions or data requests, contact xiaobei198756@gmail.com.'
       }
     ]
   }
@@ -573,3 +585,4 @@ router.post('/go/:slug', async (req, res, next) => {
 });
 
 module.exports = router;
+
