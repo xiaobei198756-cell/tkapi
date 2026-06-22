@@ -14,9 +14,16 @@ function resolvePython() {
   const localVenvPython = process.platform === "win32"
     ? path.join(backendDir, ".venv", "Scripts", "python.exe")
     : path.join(backendDir, ".venv", "bin", "python");
+  const renderVenvPython = process.platform === "win32"
+    ? path.join(rootDir, ".render-python", "Scripts", "python.exe")
+    : path.join(rootDir, ".render-python", "bin", "python");
 
   if (fs.existsSync(localVenvPython)) {
     return localVenvPython;
+  }
+
+  if (fs.existsSync(renderVenvPython)) {
+    return renderVenvPython;
   }
 
   return process.platform === "win32" ? "python" : "python3";
