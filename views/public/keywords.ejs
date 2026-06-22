@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>关键词搜索 | TKAPI</title>
+  <title>Keyword Search | TKAPI</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="/css/app.css" rel="stylesheet">
 </head>
@@ -11,8 +11,8 @@
   <header class="site-header">
     <a class="site-logo" href="/">TKAPI</a>
     <nav class="site-nav" aria-label="TKAPI navigation">
-      <a href="/features">功能介绍</a>
-      <a href="/keywords">关键词搜索</a>
+      <a href="/features">Features</a>
+      <a href="/keywords">Keyword Search</a>
       <a href="/settings/tiktok">TikTok API</a>
       <a href="/terms">Terms</a>
       <a href="/privacy">Privacy</a>
@@ -22,18 +22,18 @@
   <main class="site-section site-section-top">
     <div class="page-heading">
       <p class="site-kicker">Keyword Search</p>
-      <h1>关键词搜索</h1>
-      <p>输入关键词和筛选条件，调用后端接口查询允许范围内的视频数据。</p>
+      <h1>Keyword Search</h1>
+      <p>Submit keywords and filters to request video data that is available through authorized API access.</p>
     </div>
 
     <section class="tool-card">
       <form id="keywordForm" class="keyword-form">
         <label>
-          <span>关键词</span>
-          <input class="form-control" name="keyword" placeholder="crypto prediction market" required>
+          <span>Keyword</span>
+          <input class="form-control" name="keyword" placeholder="creator analytics" required>
         </label>
         <div>
-          <span class="field-label">选择平台</span>
+          <span class="field-label">Platforms</span>
           <div class="platform-options">
             <label><input type="checkbox" name="platforms" value="tiktok" checked> TikTok</label>
             <label><input type="checkbox" name="platforms" value="youtube"> YouTube</label>
@@ -43,27 +43,27 @@
           </div>
         </div>
         <label>
-          <span>最小播放量</span>
+          <span>Minimum views</span>
           <input class="form-control" name="min_views" min="0" placeholder="1000" type="number">
         </label>
         <label>
-          <span>最小点赞数</span>
+          <span>Minimum likes</span>
           <input class="form-control" name="min_likes" min="0" placeholder="100" type="number">
         </label>
         <label>
-          <span>发布时间范围</span>
+          <span>Publish date range</span>
           <select class="form-select" name="date_range">
-            <option value="7d">最近 7 天</option>
-            <option value="30d">最近 30 天</option>
-            <option value="90d">最近 90 天</option>
-            <option value="">不限</option>
+            <option value="7d">Last 7 days</option>
+            <option value="30d">Last 30 days</option>
+            <option value="90d">Last 90 days</option>
+            <option value="">Any time</option>
           </select>
         </label>
         <label>
-          <span>最大返回数量</span>
+          <span>Maximum results</span>
           <input class="form-control" name="limit" max="100" min="1" type="number" value="50">
         </label>
-        <button class="btn btn-primary btn-lg" type="submit">开始搜索</button>
+        <button class="btn btn-primary btn-lg" type="submit">Start Search</button>
       </form>
       <div id="searchMessage" class="search-message" role="status"></div>
     </section>
@@ -73,23 +73,23 @@
         <table class="table align-middle">
           <thead>
             <tr>
-              <th>平台</th>
-              <th>关键词</th>
-              <th>视频标题</th>
-              <th>视频链接</th>
-              <th>作者</th>
-              <th>发布时间</th>
-              <th>播放量</th>
-              <th>点赞数</th>
-              <th>评论数</th>
-              <th>收藏数</th>
-              <th>分享数</th>
-              <th>数据更新时间</th>
+              <th>Platform</th>
+              <th>Keyword</th>
+              <th>Video title</th>
+              <th>Video link</th>
+              <th>Author</th>
+              <th>Published</th>
+              <th>Views</th>
+              <th>Likes</th>
+              <th>Comments</th>
+              <th>Favorites</th>
+              <th>Shares</th>
+              <th>Updated</th>
             </tr>
           </thead>
           <tbody id="resultBody">
             <tr>
-              <td colspan="12" class="text-muted">暂无数据，请先开始搜索。</td>
+              <td colspan="12" class="text-muted">No data yet. Start a search to view results.</td>
             </tr>
           </tbody>
         </table>
@@ -112,7 +112,7 @@
 
     form.addEventListener('submit', async (event) => {
       event.preventDefault();
-      message.textContent = '正在搜索...';
+      message.textContent = 'Searching...';
       resultBody.innerHTML = '';
       const data = new FormData(form);
       const platforms = data.getAll('platforms');
@@ -133,10 +133,10 @@
         });
         const json = await response.json();
         if (!response.ok) throw new Error(json.message || 'Search request failed.');
-        const warnings = json.warnings && json.warnings.length ? ` 提示：${json.warnings.join('；')}` : '';
-        message.textContent = `返回 ${json.items.length} 条结果。${warnings}`;
+        const warnings = json.warnings && json.warnings.length ? ' Notice: ' + json.warnings.join('; ') : '';
+        message.textContent = 'Returned ' + json.items.length + ' result(s).' + warnings;
         if (!json.items.length) {
-          resultBody.innerHTML = '<tr><td colspan="12" class="text-muted">没有搜索到视频数据。</td></tr>';
+          resultBody.innerHTML = '<tr><td colspan="12" class="text-muted">No video data was found.</td></tr>';
           return;
         }
         resultBody.innerHTML = json.items.map((item) => `
@@ -156,8 +156,8 @@
           </tr>
         `).join('');
       } catch (error) {
-        message.textContent = error.message || '网络请求失败。';
-        resultBody.innerHTML = '<tr><td colspan="12" class="text-danger">搜索失败，请检查后端接口和 API 权限。</td></tr>';
+        message.textContent = error.message || 'Network request failed.';
+        resultBody.innerHTML = '<tr><td colspan="12" class="text-danger">Search failed. Check backend logs and API permissions.</td></tr>';
       }
     });
   </script>
