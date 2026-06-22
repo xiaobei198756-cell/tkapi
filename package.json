@@ -1,0 +1,14 @@
+{
+  "name": "social-video-tracker-render-wrapper",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Compatibility wrapper for Render services that still use the Node runtime.",
+  "scripts": {
+    "build": "node render-build.js",
+    "prestart": "node render-build.js",
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
