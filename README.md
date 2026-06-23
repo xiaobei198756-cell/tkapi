@@ -66,6 +66,29 @@ Open:
 - Backend docs: http://127.0.0.1:8000/docs
 - Frontend page: http://localhost:5173/
 
+## Remotion Video
+
+The `remotion-video/` directory contains a standalone Remotion composition for
+previewing and rendering a 10-second, 1920x1080 social metrics video at 30fps.
+
+Install its dependencies from the project root:
+
+```powershell
+npm run remotion:install
+```
+
+Start Remotion Studio:
+
+```powershell
+npm run remotion:dev
+```
+
+Render `remotion-video/out/social-metrics.mp4`:
+
+```powershell
+npm run remotion:render
+```
+
 ## First-Time Backend Setup
 
 ```powershell

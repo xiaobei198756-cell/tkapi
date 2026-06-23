@@ -1,0 +1,137 @@
+@import "tailwindcss";
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family:
+    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+}
+
+.video-shell {
+  background: #0a0d12;
+  color: #f8fafc;
+  overflow: hidden;
+}
+
+.background-grid {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.055) 1px, transparent 1px),
+    radial-gradient(circle at 15% 20%, rgba(34, 197, 94, 0.22), transparent 26%),
+    radial-gradient(circle at 86% 12%, rgba(56, 189, 248, 0.2), transparent 24%),
+    linear-gradient(135deg, #0a0d12 0%, #111827 48%, #171717 100%);
+  background-size:
+    72px 72px,
+    72px 72px,
+    auto,
+    auto,
+    auto;
+}
+
+.content {
+  position: relative;
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 118px 132px 92px;
+}
+
+.headline {
+  max-width: 1260px;
+}
+
+.eyebrow,
+footer {
+  color: #a7f3d0;
+  font-size: 34px;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+h1 {
+  margin: 28px 0 40px;
+  font-size: 118px;
+  line-height: 1.02;
+  letter-spacing: 0;
+}
+
+.keyword-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 24px;
+  border-left: 8px solid #38bdf8;
+  background: rgba(15, 23, 42, 0.72);
+  padding: 24px 34px;
+  font-size: 38px;
+}
+
+.keyword-row span {
+  color: #94a3b8;
+}
+
+.keyword-row strong {
+  color: #f8fafc;
+}
+
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 34px;
+}
+
+.metric-card {
+  min-height: 250px;
+  border: 4px solid;
+  border-radius: 8px;
+  background: rgba(15, 23, 42, 0.86);
+  padding: 40px;
+  box-shadow: 0 28px 80px rgba(0, 0, 0, 0.34);
+}
+
+.metric-label {
+  color: #cbd5e1;
+  font-size: 34px;
+  font-weight: 700;
+}
+
+.metric-value {
+  margin-top: 20px;
+  font-size: 88px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.metric-detail {
+  margin-top: 22px;
+  color: #94a3b8;
+  font-size: 28px;
+}
+
+footer {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  font-size: 24px;
+  text-transform: none;
+}
+
+.progress-track {
+  height: 12px;
+  flex: 1;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.28);
+}
+
+.progress-bar {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #22c55e, #38bdf8, #f97316);
+}

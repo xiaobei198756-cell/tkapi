@@ -6,7 +6,12 @@
   "scripts": {
     "build": "node render-build.js",
     "prestart": "node render-build.js",
-    "start": "node server.js"
+    "start": "node server.js",
+    "remotion:install": "npm --prefix remotion-video install",
+    "remotion:dev": "npm --prefix remotion-video run remotion:dev",
+    "remotion:preview": "npm --prefix remotion-video run remotion:preview",
+    "remotion:build": "npm --prefix remotion-video run build",
+    "remotion:render": "npm --prefix remotion-video run remotion:render"
   },
   "engines": {
     "node": ">=20"
