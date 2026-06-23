@@ -18,5 +18,11 @@ frontend/dist/
 .render-python/
 archive/
 
+remotion-video/node_modules/
+remotion-video/build/
+remotion-video/out/
+remotion-video/remotion-studio*.log
+remotion-video/.cache/
+
 *.db
 social_video_tracker.db
