@@ -15,6 +15,10 @@ services:
         value: https://tkapi.onrender.com
       - key: VITE_API_BASE_URL
         value: https://tkapi.onrender.com
+      - key: PUBLIC_SITE_URL
+        value: https://tkapi.onrender.com
+      - key: VITE_PUBLIC_SITE_URL
+        value: https://tkapi.onrender.com
       - key: YOUTUBE_API_KEY
         sync: false
       - key: X_BEARER_TOKEN
@@ -53,3 +57,4 @@ services:
         sync: false
       - key: FB_PAGE_IDS
         sync: false
+
