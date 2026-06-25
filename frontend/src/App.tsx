@@ -10,6 +10,8 @@ import { VideoTable } from "./components/VideoTable";
 import { XBillingCard } from "./components/XBillingCard";
 import type { JobCreate } from "./types";
 
+const SITE_URL = import.meta.env.VITE_PUBLIC_SITE_URL || "https://tkapi.onrender.com";
+
 const navItems = [
   { path: "/features", label: "Features" },
   { path: "/keywords", label: "Keyword Search" },
@@ -17,6 +19,7 @@ const navItems = [
   { path: "/settings/tiktok", label: "TikTok API" },
   { path: "/terms", label: "Terms" },
   { path: "/privacy", label: "Privacy" },
+  { path: "/disclaimer", label: "Disclaimer" },
 ];
 
 function useRoute() {
@@ -137,59 +140,104 @@ function RankingsPage({ platform, keyword }: { platform?: string; keyword?: stri
   );
 }
 
-function LegalPage({ kind }: { kind: "terms" | "privacy" }) {
-  if (kind === "terms") {
-    return (
-      <section className="legal-page dashboard-card">
-        <h1>Terms of Service</h1>
-        <p>Last updated: June 22, 2026</p>
-        <p>
-          TKAPI provides tools that help authorized users and businesses connect with TikTok APIs to manage account
-          login, authorized data access, and compliant creator/content workflows.
-        </p>
-        <p>
-          TKAPI is available for users and businesses in regions where TikTok services are available and is not
-          intended for Mainland China.
-        </p>
-        <p>
-          Users are responsible for complying with TikTok Developer Terms, TikTok API permissions, applicable platform
-          policies, and all laws that apply to their use of the service.
-        </p>
-        <p>
-          TKAPI uses official API and OAuth flows. Users may only access data they are authorized to access through
-          granted platform permissions.
-        </p>
-        <p>
-          For support or compliance questions, contact <a href="mailto:xiaobei198756@gmail.com">xiaobei198756@gmail.com</a>.
-        </p>
-      </section>
-    );
-  }
+type LegalKind = "terms" | "privacy" | "disclaimer";
 
+const legalPages: Record<LegalKind, { title: string; updated: string; blocks: Array<string | string[]> }> = {
+  privacy: {
+    title: "سياسة الخصوصية",
+    updated: "آخر تحديث: 2026",
+    blocks: [
+      "نحن نحترم خصوصيتك ونلتزم بحماية المعلومات الشخصية التي قد تقدمها عند استخدام هذا الموقع.",
+      "المعلومات التي قد نقوم بجمعها:",
+      [
+        "الاسم ومعلومات الاتصال مثل رقم الهاتف أو البريد الإلكتروني أو حساب WhatsApp أو Telegram.",
+        "معلومات الطلب أو الاستفسار التي يرسلها المستخدم من خلال الموقع.",
+        "بيانات تقنية عامة مثل عنوان IP، نوع المتصفح، نوع الجهاز، وقت الزيارة، والصفحات التي تم تصفحها.",
+        "قد نستخدم ملفات تعريف الارتباط وأدوات تحليل الإعلانات مثل TikTok Pixel أو Meta Pixel أو Google Analytics لتحسين تجربة المستخدم وقياس أداء الحملات الإعلانية.",
+      ],
+      "كيفية استخدام المعلومات:",
+      [
+        "الرد على استفسارات المستخدمين.",
+        "تقديم معلومات حول المنتجات والخدمات.",
+        "معالجة الطلبات والتواصل بخصوص خدمة العملاء.",
+        "تحسين الموقع وتجربة المستخدم.",
+        "تحليل أداء الحملات الإعلانية.",
+      ],
+      "نحن لا نبيع المعلومات الشخصية للمستخدمين إلى أطراف ثالثة.",
+      "قد نشارك بعض البيانات مع مزودي خدمات موثوقين مثل خدمات الدفع، أدوات التحليل، منصات الإعلانات، أو أدوات التواصل مثل WhatsApp و Telegram، وذلك فقط عند الحاجة لتقديم الخدمة أو تحسينها.",
+      "يحق للمستخدم طلب حذف أو تعديل بياناته الشخصية أو التوقف عن استخدامها من خلال التواصل معنا عبر البريد الإلكتروني:",
+      "xiaobei198756@gmail.com",
+      "نستخدم إجراءات معقولة لحماية البيانات، ولكن لا يمكن ضمان الأمان الكامل لأي نقل بيانات عبر الإنترنت.",
+      "هذا الموقع غير موجه للأطفال أو القاصرين.",
+      "قد نقوم بتحديث سياسة الخصوصية من وقت لآخر، وسيتم نشر أي تغييرات على هذه الصفحة.",
+    ],
+  },
+  terms: {
+    title: "شروط الاستخدام",
+    updated: "آخر تحديث: 2026",
+    blocks: [
+      "باستخدامك لهذا الموقع، فإنك توافق على الالتزام بشروط الاستخدام التالية.",
+      "يجب استخدام هذا الموقع بطريقة قانونية ومسؤولة فقط.",
+      "المعلومات الموجودة على هذا الموقع مقدمة لأغراض عامة تتعلق بالعناية الطبيعية ونمط الحياة الصحي، ولا تعتبر نصيحة طبية أو علاجية.",
+      "لا يجوز إساءة استخدام الموقع، أو إرسال معلومات مزيفة، أو محاولة اختراق الخادم، أو استخدام الموقع بطريقة تخالف القوانين أو سياسات المنصات الإعلانية.",
+      "نحتفظ بالحق في تعديل محتوى الموقع أو المنتجات أو الأسعار أو السياسات في أي وقت دون إشعار مسبق.",
+      "يجب على المستخدم قراءة المعلومات بعناية واتخاذ قراره الشخصي قبل طلب أي منتج أو التواصل معنا.",
+      "لأي استفسار، يمكن التواصل معنا عبر:",
+      "xiaobei198756@gmail.com",
+    ],
+  },
+  disclaimer: {
+    title: "إخلاء مسؤولية صحية",
+    updated: "آخر تحديث: 2026",
+    blocks: [
+      "المحتوى الموجود على هذا الموقع لا يشكل نصيحة طبية ولا يهدف إلى تشخيص أو علاج أو شفاء أو منع أي مرض.",
+      "المنتجات أو المعلومات المذكورة في هذا الموقع مخصصة للدعم العام للعناية الطبيعية ونمط الحياة الصحي فقط.",
+      "النتائج قد تختلف من شخص لآخر، ولا يمكن ضمان نتائج محددة.",
+      "إذا كنت تعاني من أي حالة صحية، أو تستخدم أدوية، أو لديك حساسية، أو كنتِ حاملاً أو مرضعة، فيجب استشارة مختص صحي قبل استخدام أي منتج.",
+      "لا يجب الاعتماد على محتوى هذا الموقع كبديل عن استشارة الطبيب أو المختص.",
+      "لأي استفسار، يمكن التواصل معنا عبر:",
+      "xiaobei198756@gmail.com",
+    ],
+  },
+};
+
+function ComplianceFooter({ navigate }: { navigate: (path: string) => void }) {
   return (
-    <section className="legal-page dashboard-card">
-      <h1>Privacy Policy</h1>
-      <p>Last updated: June 22, 2026</p>
-      <p>
-        TKAPI uses official platform APIs and permissioned OAuth flows to support account login, authorized data
-        access, and compliant creator/content workflows.
-      </p>
-      <p>
-        We do not display client secrets, access tokens, or refresh tokens in the frontend. Sensitive credentials are
-        stored only in backend environments controlled by the service operator.
-      </p>
-      <p>
-        Public pages, including the homepage, Terms of Service, and Privacy Policy, are available without login for
-        users, businesses, and platform review teams.
-      </p>
-      <p>
-        If you request deletion of connected account data or have privacy questions, contact{" "}
-        <a href="mailto:xiaobei198756@gmail.com">xiaobei198756@gmail.com</a>.
-      </p>
-    </section>
+    <footer className="compliance-footer" lang="ar" dir="rtl">
+      <span>TKAPI</span>
+      <button onClick={() => navigate("/privacy")} type="button">سياسة الخصوصية</button>
+      <button onClick={() => navigate("/terms")} type="button">شروط الاستخدام</button>
+      <button onClick={() => navigate("/disclaimer")} type="button">إخلاء مسؤولية صحية</button>
+    </footer>
   );
 }
 
+function LegalPage({ kind }: { kind: LegalKind }) {
+  const page = legalPages[kind];
+
+  return (
+    <section className="legal-page dashboard-card arabic-legal-page" lang="ar" dir="rtl">
+      <p className="legal-site-url">{SITE_URL}</p>
+      <h1>{page.title}</h1>
+      {page.blocks.map((block, index) =>
+        Array.isArray(block) ? (
+          <ul key={index}>
+            {block.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
+        ) : block === "xiaobei198756@gmail.com" ? (
+          <p key={index}>
+            <a href="mailto:xiaobei198756@gmail.com">xiaobei198756@gmail.com</a>
+          </p>
+        ) : (
+          <p key={index}>{block}</p>
+        ),
+      )}
+      <p className="legal-updated">{page.updated}</p>
+    </section>
+  );
+}
 export default function App() {
   const { path, navigate } = useRoute();
   const currentPath = path.startsWith("/rankings") ? "/dashboard" : path;
@@ -230,6 +278,10 @@ export default function App() {
       {path === "/settings/tiktok" && <TikTokSettings />}
       {path === "/terms" && <LegalPage kind="terms" />}
       {path === "/privacy" && <LegalPage kind="privacy" />}
+      {path === "/disclaimer" && <LegalPage kind="disclaimer" />}
+      <ComplianceFooter navigate={navigate} />
     </main>
   );
 }
+
+
