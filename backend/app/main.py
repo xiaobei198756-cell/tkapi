@@ -35,7 +35,7 @@ def on_startup() -> None:
 
 @app.get("/health")
 def health() -> dict[str, str]:
-    return {"status": "ok", "service": "social-video-tracker"}
+    return {"status": "ok", "service": "tkapi", "message": "server is running"}
 
 
 app.include_router(system.router)

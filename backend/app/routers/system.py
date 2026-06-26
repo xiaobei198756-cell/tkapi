@@ -161,7 +161,7 @@ async def _youtube_live_status() -> dict[str, bool | str]:
 
 @router.get("/health")
 def api_health() -> dict[str, str]:
-    return {"status": "ok", "service": "social-video-tracker"}
+    return {"status": "ok", "service": "tkapi", "message": "server is running"}
 
 
 @router.get("/platform-status")

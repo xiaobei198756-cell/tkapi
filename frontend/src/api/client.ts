@@ -103,7 +103,7 @@ export const api = {
     return request<{ status: string; count: number }>("/api/videos", { method: "DELETE" });
   },
   health() {
-    return request<{ status: string; service: string }>("/api/health");
+    return request<{ status: string; service: string; message?: string }>("/api/health");
   },
   tiktokAuthUrl() {
     return request<{ auth_url: string; state: string }>("/api/tiktok/auth-url");

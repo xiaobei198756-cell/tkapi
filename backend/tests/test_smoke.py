@@ -18,7 +18,7 @@ def test_api_health() -> None:
     client = TestClient(app)
     response = client.get("/api/health")
     assert response.status_code == 200
-    assert response.json() == {"status": "ok", "service": "social-video-tracker"}
+    assert response.json() == {"status": "ok", "service": "tkapi", "message": "server is running"}
 
 
 def test_platform_status() -> None:
