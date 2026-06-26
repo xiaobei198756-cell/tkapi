@@ -144,58 +144,57 @@ type LegalKind = "terms" | "privacy" | "disclaimer";
 
 const legalPages: Record<LegalKind, { title: string; updated: string; blocks: Array<string | string[]> }> = {
   privacy: {
-    title: "سياسة الخصوصية",
-    updated: "آخر تحديث: 2026",
+    title: "Privacy Policy",
+    updated: "Last updated: 2026",
     blocks: [
-      "نحن نحترم خصوصيتك ونلتزم بحماية المعلومات الشخصية التي قد تقدمها عند استخدام هذا الموقع.",
-      "المعلومات التي قد نقوم بجمعها:",
+      "TKAPI respects your privacy and is committed to protecting information that users may provide while using this website.",
+      "Information we may collect:",
       [
-        "الاسم ومعلومات الاتصال مثل رقم الهاتف أو البريد الإلكتروني أو حساب WhatsApp أو Telegram.",
-        "معلومات الطلب أو الاستفسار التي يرسلها المستخدم من خلال الموقع.",
-        "بيانات تقنية عامة مثل عنوان IP، نوع المتصفح، نوع الجهاز، وقت الزيارة، والصفحات التي تم تصفحها.",
-        "قد نستخدم ملفات تعريف الارتباط وأدوات تحليل الإعلانات مثل TikTok Pixel أو Meta Pixel أو Google Analytics لتحسين تجربة المستخدم وقياس أداء الحملات الإعلانية.",
+        "Contact information such as name, email address, or support messages submitted by users.",
+        "Account authorization status and API permission information needed to support official TikTok API workflows.",
+        "General technical data such as IP address, browser type, device type, visit time, and pages viewed.",
+        "Cookies and analytics signals may be used to improve the service, measure performance, and support compliant product operations.",
       ],
-      "كيفية استخدام المعلومات:",
+      "How we use information:",
       [
-        "الرد على استفسارات المستخدمين.",
-        "تقديم معلومات حول المنتجات والخدمات.",
-        "معالجة الطلبات والتواصل بخصوص خدمة العملاء.",
-        "تحسين الموقع وتجربة المستخدم.",
-        "تحليل أداء الحملات الإعلانية.",
+        "Respond to user inquiries and support requests.",
+        "Provide information about TKAPI features and authorized API workflows.",
+        "Maintain, secure, and improve the website and user experience.",
+        "Analyze service performance and product usage in a privacy-conscious manner.",
       ],
-      "نحن لا نبيع المعلومات الشخصية للمستخدمين إلى أطراف ثالثة.",
-      "قد نشارك بعض البيانات مع مزودي خدمات موثوقين مثل خدمات الدفع، أدوات التحليل، منصات الإعلانات، أو أدوات التواصل مثل WhatsApp و Telegram، وذلك فقط عند الحاجة لتقديم الخدمة أو تحسينها.",
-      "يحق للمستخدم طلب حذف أو تعديل بياناته الشخصية أو التوقف عن استخدامها من خلال التواصل معنا عبر البريد الإلكتروني:",
+      "We do not sell users' personal information to third parties.",
+      "We may share limited data with trusted service providers when necessary to operate hosting, analytics, security, support, or communication tools.",
+      "Users may request deletion or correction of personal information by contacting us at:",
       "xiaobei198756@gmail.com",
-      "نستخدم إجراءات معقولة لحماية البيانات، ولكن لا يمكن ضمان الأمان الكامل لأي نقل بيانات عبر الإنترنت.",
-      "هذا الموقع غير موجه للأطفال أو القاصرين.",
-      "قد نقوم بتحديث سياسة الخصوصية من وقت لآخر، وسيتم نشر أي تغييرات على هذه الصفحة.",
+      "No internet transmission can be guaranteed to be fully secure, but we use reasonable safeguards to protect data.",
+      "This website is not directed to children or minors.",
+      "We may update this Privacy Policy from time to time. Updates will be posted on this page.",
     ],
   },
   terms: {
-    title: "شروط الاستخدام",
-    updated: "آخر تحديث: 2026",
+    title: "Terms of Use",
+    updated: "Last updated: 2026",
     blocks: [
-      "باستخدامك لهذا الموقع، فإنك توافق على الالتزام بشروط الاستخدام التالية.",
-      "يجب استخدام هذا الموقع بطريقة قانونية ومسؤولة فقط.",
-      "المعلومات الموجودة على هذا الموقع مقدمة لأغراض عامة تتعلق بالعناية الطبيعية ونمط الحياة الصحي، ولا تعتبر نصيحة طبية أو علاجية.",
-      "لا يجوز إساءة استخدام الموقع، أو إرسال معلومات مزيفة، أو محاولة اختراق الخادم، أو استخدام الموقع بطريقة تخالف القوانين أو سياسات المنصات الإعلانية.",
-      "نحتفظ بالحق في تعديل محتوى الموقع أو المنتجات أو الأسعار أو السياسات في أي وقت دون إشعار مسبق.",
-      "يجب على المستخدم قراءة المعلومات بعناية واتخاذ قراره الشخصي قبل طلب أي منتج أو التواصل معنا.",
-      "لأي استفسار، يمكن التواصل معنا عبر:",
+      "By using this website, you agree to these Terms of Use.",
+      "This website must be used only in a lawful, responsible, and compliant manner.",
+      "TKAPI helps authorized users connect with TikTok APIs to manage account login, authorized data access, and compliant creator/content workflows.",
+      "You may not misuse the website, submit false information, attempt to compromise the service, or use the service in a way that violates applicable laws or platform policies.",
+      "We may update website content, features, policies, or availability at any time.",
+      "Users are responsible for ensuring they have the necessary permissions and approvals before connecting accounts or using API-related features.",
+      "For questions, contact:",
       "xiaobei198756@gmail.com",
     ],
   },
   disclaimer: {
-    title: "إخلاء مسؤولية صحية",
-    updated: "آخر تحديث: 2026",
+    title: "Disclaimer",
+    updated: "Last updated: 2026",
     blocks: [
-      "المحتوى الموجود على هذا الموقع لا يشكل نصيحة طبية ولا يهدف إلى تشخيص أو علاج أو شفاء أو منع أي مرض.",
-      "المنتجات أو المعلومات المذكورة في هذا الموقع مخصصة للدعم العام للعناية الطبيعية ونمط الحياة الصحي فقط.",
-      "النتائج قد تختلف من شخص لآخر، ولا يمكن ضمان نتائج محددة.",
-      "إذا كنت تعاني من أي حالة صحية، أو تستخدم أدوية، أو لديك حساسية، أو كنتِ حاملاً أو مرضعة، فيجب استشارة مختص صحي قبل استخدام أي منتج.",
-      "لا يجب الاعتماد على محتوى هذا الموقع كبديل عن استشارة الطبيب أو المختص.",
-      "لأي استفسار، يمكن التواصل معنا عبر:",
+      "The information on this website is provided for general product and compliance information only.",
+      "TKAPI is intended to support authorized API workflows. It does not authorize users to access data they are not permitted to access.",
+      "Availability of features may depend on TikTok Developer permissions, API scopes, regional availability, and platform review status.",
+      "This service is available for users and businesses in regions where TikTok services are available and is not intended for Mainland China.",
+      "Users should review applicable platform policies and legal requirements before using connected API features.",
+      "For questions, contact:",
       "xiaobei198756@gmail.com",
     ],
   },
@@ -203,11 +202,11 @@ const legalPages: Record<LegalKind, { title: string; updated: string; blocks: Ar
 
 function ComplianceFooter({ navigate }: { navigate: (path: string) => void }) {
   return (
-    <footer className="compliance-footer" lang="ar" dir="rtl">
+    <footer className="compliance-footer">
       <span>TKAPI</span>
-      <button onClick={() => navigate("/privacy")} type="button">سياسة الخصوصية</button>
-      <button onClick={() => navigate("/terms")} type="button">شروط الاستخدام</button>
-      <button onClick={() => navigate("/disclaimer")} type="button">إخلاء مسؤولية صحية</button>
+      <button onClick={() => navigate("/privacy")} type="button">Privacy Policy</button>
+      <button onClick={() => navigate("/terms")} type="button">Terms of Use</button>
+      <button onClick={() => navigate("/disclaimer")} type="button">Disclaimer</button>
     </footer>
   );
 }
@@ -216,7 +215,7 @@ function LegalPage({ kind }: { kind: LegalKind }) {
   const page = legalPages[kind];
 
   return (
-    <section className="legal-page dashboard-card arabic-legal-page" lang="ar" dir="rtl">
+    <section className="legal-page dashboard-card">
       <p className="legal-site-url">{SITE_URL}</p>
       <h1>{page.title}</h1>
       {page.blocks.map((block, index) =>
@@ -283,5 +282,6 @@ export default function App() {
     </main>
   );
 }
+
 
 

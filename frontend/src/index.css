@@ -804,36 +804,6 @@ td a.open-button {
 }
 
 
-.arabic-legal-page {
-  direction: rtl;
-  text-align: right;
-  line-height: 1.9;
-  max-width: 920px;
-  margin: 32px auto;
-}
-
-.arabic-legal-page h1 {
-  font-size: clamp(28px, 5vw, 44px);
-  margin-bottom: 18px;
-}
-
-.arabic-legal-page p,
-.arabic-legal-page li {
-  color: #33443b;
-  font-size: 17px;
-}
-
-.arabic-legal-page ul {
-  padding-right: 24px;
-  padding-left: 0;
-}
-
-.legal-site-url,
-.legal-updated {
-  color: #61736a;
-  font-size: 14px;
-}
-
 .compliance-footer {
   align-items: center;
   border-top: 1px solid #dce7df;
@@ -863,19 +833,10 @@ td a.open-button {
 }
 
 @media (max-width: 640px) {
-  .arabic-legal-page {
-    margin: 16px 12px;
-    padding: 20px;
-  }
-
-  .arabic-legal-page p,
-  .arabic-legal-page li {
-    font-size: 16px;
-  }
-
   .compliance-footer {
     align-items: stretch;
     flex-direction: column;
     text-align: center;
   }
 }
+

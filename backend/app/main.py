@@ -53,52 +53,51 @@ CONTACT_EMAIL = "xiaobei198756@gmail.com"
 
 LEGAL_PAGES: dict[str, dict[str, list[str]]] = {
     "privacy": {
-        "title": "سياسة الخصوصية",
+        "title": "Privacy Policy",
         "paragraphs": [
-            "نحن نحترم خصوصيتك ونلتزم بحماية المعلومات الشخصية التي قد تقدمها عند استخدام هذا الموقع.",
-            "المعلومات التي قد نقوم بجمعها:",
-            "- الاسم ومعلومات الاتصال مثل رقم الهاتف أو البريد الإلكتروني أو حساب WhatsApp أو Telegram.",
-            "- معلومات الطلب أو الاستفسار التي يرسلها المستخدم من خلال الموقع.",
-            "- بيانات تقنية عامة مثل عنوان IP، نوع المتصفح، نوع الجهاز، وقت الزيارة، والصفحات التي تم تصفحها.",
-            "- قد نستخدم ملفات تعريف الارتباط وأدوات تحليل الإعلانات مثل TikTok Pixel أو Meta Pixel أو Google Analytics لتحسين تجربة المستخدم وقياس أداء الحملات الإعلانية.",
-            "كيفية استخدام المعلومات:",
-            "- الرد على استفسارات المستخدمين.",
-            "- تقديم معلومات حول المنتجات والخدمات.",
-            "- معالجة الطلبات والتواصل بخصوص خدمة العملاء.",
-            "- تحسين الموقع وتجربة المستخدم.",
-            "- تحليل أداء الحملات الإعلانية.",
-            "نحن لا نبيع المعلومات الشخصية للمستخدمين إلى أطراف ثالثة.",
-            "قد نشارك بعض البيانات مع مزودي خدمات موثوقين مثل خدمات الدفع، أدوات التحليل، منصات الإعلانات، أو أدوات التواصل مثل WhatsApp و Telegram، وذلك فقط عند الحاجة لتقديم الخدمة أو تحسينها.",
-            f"يحق للمستخدم طلب حذف أو تعديل بياناته الشخصية أو التوقف عن استخدامها من خلال التواصل معنا عبر البريد الإلكتروني: {CONTACT_EMAIL}",
-            "نستخدم إجراءات معقولة لحماية البيانات، ولكن لا يمكن ضمان الأمان الكامل لأي نقل بيانات عبر الإنترنت.",
-            "هذا الموقع غير موجه للأطفال أو القاصرين.",
-            "قد نقوم بتحديث سياسة الخصوصية من وقت لآخر، وسيتم نشر أي تغييرات على هذه الصفحة.",
-            "آخر تحديث: 2026",
+            "TKAPI respects your privacy and is committed to protecting information that users may provide while using this website.",
+            "Information we may collect:",
+            "- Contact information such as name, email address, or support messages submitted by users.",
+            "- Account authorization status and API permission information needed to support official TikTok API workflows.",
+            "- General technical data such as IP address, browser type, device type, visit time, and pages viewed.",
+            "- Cookies and analytics signals may be used to improve the service, measure performance, and support compliant product operations.",
+            "How we use information:",
+            "- Respond to user inquiries and support requests.",
+            "- Provide information about TKAPI features and authorized API workflows.",
+            "- Maintain, secure, and improve the website and user experience.",
+            "- Analyze service performance and product usage in a privacy-conscious manner.",
+            "We do not sell users' personal information to third parties.",
+            "We may share limited data with trusted service providers when necessary to operate hosting, analytics, security, support, or communication tools.",
+            f"Users may request deletion or correction of personal information by contacting us at: {CONTACT_EMAIL}",
+            "No internet transmission can be guaranteed to be fully secure, but we use reasonable safeguards to protect data.",
+            "This website is not directed to children or minors.",
+            "We may update this Privacy Policy from time to time. Updates will be posted on this page.",
+            "Last updated: 2026",
         ],
     },
     "terms": {
-        "title": "شروط الاستخدام",
+        "title": "Terms of Use",
         "paragraphs": [
-            "باستخدامك لهذا الموقع، فإنك توافق على الالتزام بشروط الاستخدام التالية.",
-            "يجب استخدام هذا الموقع بطريقة قانونية ومسؤولة فقط.",
-            "المعلومات الموجودة على هذا الموقع مقدمة لأغراض عامة تتعلق بالعناية الطبيعية ونمط الحياة الصحي، ولا تعتبر نصيحة طبية أو علاجية.",
-            "لا يجوز إساءة استخدام الموقع، أو إرسال معلومات مزيفة، أو محاولة اختراق الخادم، أو استخدام الموقع بطريقة تخالف القوانين أو سياسات المنصات الإعلانية.",
-            "نحتفظ بالحق في تعديل محتوى الموقع أو المنتجات أو الأسعار أو السياسات في أي وقت دون إشعار مسبق.",
-            "يجب على المستخدم قراءة المعلومات بعناية واتخاذ قراره الشخصي قبل طلب أي منتج أو التواصل معنا.",
-            f"لأي استفسار، يمكن التواصل معنا عبر: {CONTACT_EMAIL}",
-            "آخر تحديث: 2026",
+            "By using this website, you agree to these Terms of Use.",
+            "This website must be used only in a lawful, responsible, and compliant manner.",
+            "TKAPI helps authorized users connect with TikTok APIs to manage account login, authorized data access, and compliant creator/content workflows.",
+            "You may not misuse the website, submit false information, attempt to compromise the service, or use the service in a way that violates applicable laws or platform policies.",
+            "We may update website content, features, policies, or availability at any time.",
+            "Users are responsible for ensuring they have the necessary permissions and approvals before connecting accounts or using API-related features.",
+            f"For questions, contact: {CONTACT_EMAIL}",
+            "Last updated: 2026",
         ],
     },
     "disclaimer": {
-        "title": "إخلاء مسؤولية صحية",
+        "title": "Disclaimer",
         "paragraphs": [
-            "المحتوى الموجود على هذا الموقع لا يشكل نصيحة طبية ولا يهدف إلى تشخيص أو علاج أو شفاء أو منع أي مرض.",
-            "المنتجات أو المعلومات المذكورة في هذا الموقع مخصصة للدعم العام للعناية الطبيعية ونمط الحياة الصحي فقط.",
-            "النتائج قد تختلف من شخص لآخر، ولا يمكن ضمان نتائج محددة.",
-            "إذا كنت تعاني من أي حالة صحية، أو تستخدم أدوية، أو لديك حساسية، أو كنتِ حاملاً أو مرضعة، فيجب استشارة مختص صحي قبل استخدام أي منتج.",
-            "لا يجب الاعتماد على محتوى هذا الموقع كبديل عن استشارة الطبيب أو المختص.",
-            f"لأي استفسار، يمكن التواصل معنا عبر: {CONTACT_EMAIL}",
-            "آخر تحديث: 2026",
+            "The information on this website is provided for general product and compliance information only.",
+            "TKAPI is intended to support authorized API workflows. It does not authorize users to access data they are not permitted to access.",
+            "Availability of features may depend on TikTok Developer permissions, API scopes, regional availability, and platform review status.",
+            "This service is available for users and businesses in regions where TikTok services are available and is not intended for Mainland China.",
+            "Users should review applicable platform policies and legal requirements before using connected API features.",
+            f"For questions, contact: {CONTACT_EMAIL}",
+            "Last updated: 2026",
         ],
     },
 }
@@ -109,7 +108,7 @@ def render_legal_page(kind: str) -> HTMLResponse:
     title = page["title"]
     paragraphs = "\n".join(f"<p>{escape(text)}</p>" for text in page["paragraphs"])
     html = f"""<!doctype html>
-<html lang="ar" dir="rtl">
+<html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -152,7 +151,7 @@ def render_legal_page(kind: str) -> HTMLResponse:
       padding: 36px;
     }}
     h1 {{ margin: 0 0 24px; font-size: clamp(30px, 6vw, 48px); line-height: 1.15; }}
-    p {{ color: #3b5249; font-size: 18px; line-height: 1.9; margin: 0 0 16px; }}
+    p {{ color: #3b5249; font-size: 18px; line-height: 1.8; margin: 0 0 16px; }}
     .site-url {{ color: #65786f; font-size: 15px; margin-bottom: 28px; }}
     footer {{ padding: 24px 0 40px; justify-content: center; }}
     @media (max-width: 640px) {{
@@ -165,10 +164,10 @@ def render_legal_page(kind: str) -> HTMLResponse:
 <body>
   <header>
     <a class="brand" href="/">TKAPI</a>
-    <nav aria-label="روابط الامتثال">
-      <a href="/privacy">سياسة الخصوصية</a>
-      <a href="/terms">شروط الاستخدام</a>
-      <a href="/disclaimer">إخلاء مسؤولية صحية</a>
+    <nav aria-label="Compliance links">
+      <a href="/privacy">Privacy Policy</a>
+      <a href="/terms">Terms of Use</a>
+      <a href="/disclaimer">Disclaimer</a>
     </nav>
   </header>
   <main>
@@ -177,9 +176,9 @@ def render_legal_page(kind: str) -> HTMLResponse:
     {paragraphs}
   </main>
   <footer>
-    <a href="/privacy">سياسة الخصوصية</a>
-    <a href="/terms">شروط الاستخدام</a>
-    <a href="/disclaimer">إخلاء مسؤولية صحية</a>
+    <a href="/privacy">Privacy Policy</a>
+    <a href="/terms">Terms of Use</a>
+    <a href="/disclaimer">Disclaimer</a>
   </footer>
 </body>
 </html>"""
@@ -199,7 +198,6 @@ def terms_page() -> HTMLResponse:
 @app.get("/disclaimer", include_in_schema=False)
 def disclaimer_page() -> HTMLResponse:
     return render_legal_page("disclaimer")
-
 FRONTEND_DIST = PROJECT_DIR / "frontend" / "dist"
 FRONTEND_ASSETS = FRONTEND_DIST / "assets"
 
@@ -215,3 +213,4 @@ def spa_fallback(full_path: str):
     if index_html.exists():
         return FileResponse(index_html)
     return {"status": "frontend_not_built", "message": "Run npm install && npm run build in frontend/."}
+
